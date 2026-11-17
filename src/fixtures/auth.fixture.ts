@@ -9,7 +9,11 @@ import { AUTH_DIR } from '../utils/paths';
 export const GUEST_STATE = { cookies: [], origins: [] };
 
 export interface AuthWorkerFixtures {
-  /** The account the worker logs in as. Override per file/describe: `test.use({ authUser: 'problem' })`. */
+  /**
+   * The account the worker logs in as. It is a worker-scoped option, so override it only at the
+   * top level of a spec file (`test.use({ authUser: 'problem' })` outside any `test.describe`) or
+   * in the config. Playwright rejects it inside a describe block, because it forces a new worker.
+   */
   authUser: UserKey;
   /** Path to the storageState file created by this worker in this run. */
   workerStorageState: string;

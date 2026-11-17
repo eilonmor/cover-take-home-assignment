@@ -53,7 +53,7 @@ Test data: standard_user / secret_sauce. baseURL https://www.saucedemo.com, `tes
 
 **Catalog (default order A to Z; id = N in the details URL)**
 
-| id | Name | Price | Description (exact start) | Image file |
+| id | Name | Price | Description (complete text, verified live; assert with exact match) | Image file |
 |---|---|---|---|---|
 | 4 | Sauce Labs Backpack | $29.99 | "carry.allTheThings() with the sleek, streamlined Sly Pack that melds uncompromising style with unequaled laptop and tablet protection." | sauce-backpack-1200x1500-*.jpg |
 | 0 | Sauce Labs Bike Light | $9.99 | "A red light isn't the desired state in testing but it sure helps when riding your bike at night. Water-resistant with 3 lighting modes, 1 AAA battery included." | bike-light-1200x1500-*.jpg |
