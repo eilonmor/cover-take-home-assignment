@@ -1,9 +1,11 @@
 import { test as base, expect, selectors } from '@playwright/test';
 import path from 'path';
 import { getUser, type UserKey } from '../data/users';
+import { InventoryPage } from '../pages/InventoryPage';
 import { LoginPage } from '../pages/LoginPage';
 import { ENV } from '../utils/env';
 import { AUTH_DIR } from '../utils/paths';
+import { SESSION_COOKIE } from '../utils/storage';
 
 /** An empty storage state: use it with `test.use({ storageState: GUEST_STATE })` for logged-out specs. */
 export const GUEST_STATE = { cookies: [], origins: [] };
@@ -45,12 +47,12 @@ export const test = base.extend<object, AuthWorkerFixtures>({
       try {
         const page = await context.newPage();
         await new LoginPage(page).login(getUser(authUser));
-        // performance_glitch_user takes about 5 s to render the inventory.
-        await expect(page.getByTestId('inventory-container')).toBeVisible({ timeout: 15_000 });
+        // Allows for performance_glitch_user, whose inventory takes about 5 s to render (SLOW_RENDER_TIMEOUT).
+        await new InventoryPage(page).waitForLoaded();
 
         const state = await context.storageState({ path: file }); // always overwrite
-        if (!state.cookies.some((cookie) => cookie.name === 'session-username')) {
-          throw new Error(`Auth setup failed for "${authUser}": no session-username cookie was set.`);
+        if (!state.cookies.some((cookie) => cookie.name === SESSION_COOKIE)) {
+          throw new Error(`Auth setup failed for "${authUser}": no ${SESSION_COOKIE} cookie was set.`);
         }
       } finally {
         await context.close();

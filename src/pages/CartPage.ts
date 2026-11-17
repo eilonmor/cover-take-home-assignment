@@ -1,0 +1,65 @@
+import { expect, type Locator, type Page } from '@playwright/test';
+import { PRODUCTS, type ProductKey } from '../data/products';
+import { ROUTES, routePattern } from '../data/routes';
+import { AppPage } from './AppPage';
+import { ItemList } from './components/ItemList';
+
+/** Page object for the cart (`/cart.html`). */
+export class CartPage extends AppPage {
+  readonly path = ROUTES.cart;
+
+  /** The cart rows, in add order. */
+  readonly list: ItemList;
+  /** The "QTY" column header. */
+  readonly quantityLabel: Locator;
+  /** The "Description" column header. */
+  readonly descriptionLabel: Locator;
+  readonly continueShoppingButton: Locator;
+  readonly checkoutButton: Locator;
+
+  constructor(page: Page) {
+    super(page);
+    this.list = new ItemList(page.getByTestId('cart-list'));
+    this.quantityLabel = page.getByTestId('cart-quantity-label');
+    this.descriptionLabel = page.getByTestId('cart-desc-label');
+    this.continueShoppingButton = page.getByTestId('continue-shopping');
+    this.checkoutButton = page.getByTestId('checkout');
+  }
+
+  /** Waits for the cart URL and the Checkout button. Read rows only after this. */
+  async waitForLoaded(): Promise<void> {
+    await expect(this.page).toHaveURL(routePattern(this.path));
+    await expect(this.checkoutButton).toBeVisible();
+  }
+
+  /** The product's "Remove" button in the cart. */
+  removeButton(key: ProductKey): Locator {
+    return this.page.getByTestId(`remove-${PRODUCTS[key].slug}`);
+  }
+
+  /** Removes each product, in order, waiting for its row to disappear. */
+  async remove(...keys: readonly ProductKey[]): Promise<void> {
+    for (const key of keys) {
+      await this.removeButton(key).click();
+      await expect(this.list.row(key)).toHaveCount(0);
+    }
+  }
+
+  /** Clicks "Continue Shopping" and waits for the inventory URL. */
+  async continueShopping(): Promise<void> {
+    await this.continueShoppingButton.click();
+    await expect(this.page).toHaveURL(routePattern(ROUTES.inventory));
+  }
+
+  /** Clicks "Checkout" and waits for the step one URL. */
+  async checkout(): Promise<void> {
+    await this.checkoutButton.click();
+    await expect(this.page).toHaveURL(routePattern(ROUTES.checkoutInfo));
+  }
+
+  /** Clicks the product's name and waits for its details URL. */
+  async openItem(key: ProductKey): Promise<void> {
+    await this.list.nameIn(key).click();
+    await expect(this.page).toHaveURL(routePattern(ROUTES.details(PRODUCTS[key].id)));
+  }
+}
