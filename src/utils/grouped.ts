@@ -48,6 +48,9 @@ export async function runGroupedCases<C extends GroupedCase>(
   cases: readonly C[],
   options: GroupedOptions<C>,
 ): Promise<readonly CaseResult[]> {
+  if (cases.length === 0) {
+    throw new Error('runGroupedCases needs at least one case: an empty case list would pass without checking anything.');
+  }
   const info = test.info();
   const stepTimeout = options.stepTimeout ?? DEFAULT_STEP_TIMEOUT;
 
