@@ -1,0 +1,33 @@
+{
+  "name": "cover-take-home-assignment",
+  "version": "1.0.0",
+  "description": "E2E test automation for saucedemo.com with Playwright and TypeScript",
+  "private": true,
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:chromium": "playwright test --project=chromium",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit",
+    "postinstall": "playwright install"
+  },
+  "keywords": [
+    "playwright",
+    "typescript",
+    "e2e",
+    "qa-automation"
+  ],
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^26.6.6",
+    "dotenv": "^18.0.10",
+    "typescript": "^7.0.2"
+  }
+}
