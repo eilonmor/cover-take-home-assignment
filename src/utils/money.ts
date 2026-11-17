@@ -14,12 +14,16 @@ export function cents(value: number): Cents {
   return value as Cents;
 }
 
-const AMOUNT = /\$(\d+)(?:\.(\d{1,2}))?/;
+/**
+ * A plain, non-negative dollar amount with at most 2 decimals. The lookarounds reject anything the
+ * site should never show (a minus sign, a thousands separator, a 3rd decimal) instead of misreading it.
+ */
+const AMOUNT = /(?<!-)\$(\d+)(?:\.(\d{1,2}))?(?![\d.,])/;
 
 /**
  * Parses the first dollar amount in a text into cents, without going through floats.
  * Examples: "$29.99" → 2999, "Item total: $39.98" → 3998, "Total: $0" → 0.
- * Throws if the text contains no amount.
+ * Throws if the text contains no valid amount (e.g. "-$5.00", "$1,234.56", "$29.999").
  */
 export function parseMoney(text: string): Cents {
   const match = AMOUNT.exec(text);
