@@ -63,9 +63,21 @@ export async function runGroupedCases<C extends GroupedCase>(
     // 3. Soft failures of this case are the test errors added while its step runs.
     const errorsBefore = info.errors.length;
     let thrown: string | undefined;
+    // A step timeout rejects test.step but does NOT cancel `run`, so track whether it really finished.
+    let runSettled = false;
     try {
       // 2. One named step per case, with its own timeout.
-      await test.step(title, () => options.run(testCase, index), { timeout: stepTimeout });
+      await test.step(
+        title,
+        async () => {
+          try {
+            await options.run(testCase, index);
+          } finally {
+            runSettled = true;
+          }
+        },
+        { timeout: stepTimeout },
+      );
     } catch (error) {
       // 4. A hard error fails this step in the report and is recorded, but the loop moves on.
       thrown = describeError(error);
@@ -77,6 +89,21 @@ export async function runGroupedCases<C extends GroupedCase>(
       errors.push(thrown);
     }
     results.push({ title, status: errors.length === 0 ? 'passed' : 'failed', errors });
+
+    // 5. Isolation: if the step timed out while `run` is still pending, it would keep acting on the
+    // shared page during the next case and report its failures there. Stop instead of continuing.
+    if (!runSettled) {
+      for (const [rest, skipped] of cases.entries()) {
+        if (rest > index) {
+          results.push({
+            title: `#${rest + 1} ${skipped.name}`,
+            status: 'failed',
+            errors: [`Not run: ${title} timed out and was still running, so the shared page was not safe to reuse.`],
+          });
+        }
+      }
+      break;
+    }
   }
 
   // 6. Verdict: summary attachment + annotation, then fail if any case failed.
