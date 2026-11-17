@@ -1,64 +1,45 @@
 import { test as base } from '@playwright/test';
-import { CartPage } from '../pages/CartPage';
-import { CheckoutCompletePage } from '../pages/CheckoutCompletePage';
-import { CheckoutInfoPage } from '../pages/CheckoutInfoPage';
-import { CheckoutOverviewPage } from '../pages/CheckoutOverviewPage';
 import { ShopFlow } from '../pages/flows/ShopFlow';
-import type { Pages } from '../pages/index';
-import { InventoryPage } from '../pages/InventoryPage';
-import { LoginPage } from '../pages/LoginPage';
-import { ProductDetailsPage } from '../pages/ProductDetailsPage';
+import { createPages, type Pages } from '../pages/index';
 
 /** Test-scoped fixtures: one instance of every page object, plus the multi-page shop flow. */
 export interface PageFixtures extends Pages {
   shop: ShopFlow;
 }
 
+/** The registry behind the page fixtures; the page objects come from `createPages` only. */
+interface PageRegistryFixture {
+  /** Every page object for this test's `page` (specs normally use the individual fixtures instead). */
+  pages: Pages;
+}
+
 /** Injects the page objects into tests, all bound to the test's `page`. */
-export const test = base.extend<PageFixtures>({
-  loginPage: async ({ page }, use) => {
-    await use(new LoginPage(page));
+export const test = base.extend<PageFixtures & PageRegistryFixture>({
+  pages: async ({ page }, use) => {
+    await use(createPages(page));
   },
-  inventoryPage: async ({ page }, use) => {
-    await use(new InventoryPage(page));
+  loginPage: async ({ pages }, use) => {
+    await use(pages.loginPage);
   },
-  productDetailsPage: async ({ page }, use) => {
-    await use(new ProductDetailsPage(page));
+  inventoryPage: async ({ pages }, use) => {
+    await use(pages.inventoryPage);
   },
-  cartPage: async ({ page }, use) => {
-    await use(new CartPage(page));
+  productDetailsPage: async ({ pages }, use) => {
+    await use(pages.productDetailsPage);
   },
-  checkoutInfoPage: async ({ page }, use) => {
-    await use(new CheckoutInfoPage(page));
+  cartPage: async ({ pages }, use) => {
+    await use(pages.cartPage);
   },
-  checkoutOverviewPage: async ({ page }, use) => {
-    await use(new CheckoutOverviewPage(page));
+  checkoutInfoPage: async ({ pages }, use) => {
+    await use(pages.checkoutInfoPage);
   },
-  checkoutCompletePage: async ({ page }, use) => {
-    await use(new CheckoutCompletePage(page));
+  checkoutOverviewPage: async ({ pages }, use) => {
+    await use(pages.checkoutOverviewPage);
   },
-  shop: async (
-    {
-      loginPage,
-      inventoryPage,
-      productDetailsPage,
-      cartPage,
-      checkoutInfoPage,
-      checkoutOverviewPage,
-      checkoutCompletePage,
-    },
-    use,
-  ) => {
-    await use(
-      new ShopFlow({
-        loginPage,
-        inventoryPage,
-        productDetailsPage,
-        cartPage,
-        checkoutInfoPage,
-        checkoutOverviewPage,
-        checkoutCompletePage,
-      }),
-    );
+  checkoutCompletePage: async ({ pages }, use) => {
+    await use(pages.checkoutCompletePage);
+  },
+  shop: async ({ pages }, use) => {
+    await use(new ShopFlow(pages));
   },
 });
