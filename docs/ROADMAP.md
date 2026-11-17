@@ -8,7 +8,7 @@ Each phase runs in its own session, on its own branch from an up-to-date `main`,
 
 | Phase | Branch | PR | Status |
 |-------|--------|----|--------|
-| 0. Foundation | `feat/foundation` | | Not started |
+| 0. Foundation | `feat/foundation` | | In progress |
 | 1. Login tests | `feat/tests-login` | | Not started |
 | 2. Products tests | `feat/tests-products` | | Not started |
 | 3. Cart tests | `feat/tests-cart` | | Not started |
