@@ -15,7 +15,9 @@ export const ROUTES = {
 const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
- * A full-URL pattern for a route, for `toHaveURL`. It works with any base URL.
+ * A full-URL pattern for a route, for `toHaveURL`. It works with any origin (scheme + host), but the
+ * route must sit right after the host: a `BASE_URL` with a path prefix is not supported (the
+ * root-absolute `ROUTES` would not be either).
  * A route with a query string (e.g. `ROUTES.details(4)`) must match it exactly; a route without one
  * accepts any query string. A trailing hash is always allowed.
  */
