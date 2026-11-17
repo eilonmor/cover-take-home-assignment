@@ -12,6 +12,9 @@ dotenv.config({ path: path.resolve(__dirname, '.env'), quiet: true });
 export default defineConfig({
   testDir: './tests',
 
+  // Deletes old auth files so every run creates a fresh login (see src/fixtures/auth.fixture.ts).
+  globalSetup: './src/global-setup.ts',
+
   // Tests are independent, so every test can run in parallel.
   fullyParallel: true,
 

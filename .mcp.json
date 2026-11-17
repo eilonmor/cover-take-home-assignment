@@ -10,6 +10,16 @@
         "--output-dir",
         ".playwright-mcp"
       ]
+    },
+    "playwright-test": {
+      "type": "stdio",
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "playwright",
+        "run-test-mcp-server"
+      ]
     }
   }
 }
