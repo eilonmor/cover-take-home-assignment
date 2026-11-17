@@ -54,6 +54,8 @@ export const expect = baseExpect.extend({
     const expected = count === 0 ? 'no cart badge (empty cart)' : `cart badge "${count}"`;
     return delegate(this, 'toHaveCartBadge', expected, options, async (remaining) => {
       if (count === 0) {
+        // "Absent" is only meaningful once the header has rendered; otherwise it passes on a blank page.
+        await baseExpect(header.cartLink, 'cart link (header rendered)').toBeVisible({ timeout: remaining() });
         await baseExpect(header.cartBadge).toHaveCount(0, { timeout: remaining() });
       } else {
         await baseExpect(header.cartBadge).toHaveText(String(count), { timeout: remaining() });
