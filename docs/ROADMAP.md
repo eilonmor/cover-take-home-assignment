@@ -8,7 +8,7 @@ Each phase runs in its own session, on its own branch from an up-to-date `main`,
 
 | Phase | Branch | PR | Status |
 |-------|--------|----|--------|
-| 0. Foundation | `feat/foundation` | | In progress |
+| 0. Foundation | `feat/foundation` | | In review |
 | 1. Login tests | `feat/tests-login` | | Not started |
 | 2. Products tests | `feat/tests-products` | | Not started |
 | 3. Cart tests | `feat/tests-cart` | | Not started |
@@ -271,21 +271,21 @@ How it works:
    - With `retries: 1`, a failing grouped test reruns all of its cases.
 
 ### Tasks
-- [ ] **0.1** Add the product catalog and sort options: `src/data/products.ts`, `src/data/sort-options.ts` (+ `Cents` from 0.2: do 0.2 first if preferred) → `feat(data): add typed product catalog and sort options`
-- [ ] **0.2** Add the money helper `src/utils/money.ts` → `feat(utils): add cents-based money helper`
-- [ ] **0.3** Add messages, routes and protected URLs: `src/data/messages.ts`, `src/data/routes.ts` → `feat(data): add UI messages, routes and protected URLs`
-- [ ] **0.4** Add the login cases, accepted accounts and checkout carts: `src/data/login-cases.ts`, `src/data/checkout.ts` → `feat(data): add login cases and checkout cart data`
-- [ ] **0.5** Add the storage, session and timeout helpers: `src/utils/storage.ts`, `src/utils/timeouts.ts` → `feat(utils): add storage, session and timeout helpers`
-- [ ] **0.6** Add the base pages and components: `BasePage`, `AppPage`, `Header`, `BurgerMenu`, `ItemList` → `feat(pages): add base pages, header, burger menu and item list`
-- [ ] **0.7** Extend `LoginPage` (BasePage, errorButton, `.error_icon`, fillCredentials, submit, submitWithEnter, loginAs, dismissError). The auth fixture keeps working. → `feat(pages): extend LoginPage with error handling and Enter submit`
-- [ ] **0.8** Add `InventoryPage` and `ProductDetailsPage` → `feat(pages): add inventory and product details page objects`
-- [ ] **0.9** Add `CartPage` and the 3 checkout pages. Verify the `cart-list` id on step two with Playwright MCP. → `feat(pages): add cart and checkout page objects`
-- [ ] **0.10** Add the `src/pages/index.ts` registry and `ShopFlow` → `feat(pages): add page registry and shop flow`
-- [ ] **0.11** Add the pages fixture and merge it into `src/fixtures/index.ts` → `feat(fixtures): add pages fixture merged with auth via mergeTests`
-- [ ] **0.12** Add the custom matchers `src/fixtures/matchers.ts` and export them from index → `feat(fixtures): add cart badge, product list and order summary matchers`
-- [ ] **0.13** Add the grouped runner `src/utils/grouped.ts` → `feat(utils): add grouped verification test runner`
-- [ ] **0.14** Move `tests/seed.spec.ts` onto `@fixtures/index`: guest mode, `loginPage.goto()`. This proves the `@fixtures/*` alias resolves at runtime under TS 7 (no `baseUrl`). If it does not resolve, fix it in tsconfig/config and say so in the PR. → `chore(seed): use project fixtures in the agent seed test`
-- [ ] **0.15** Check the foundation with a throwaway spec that is **not committed** (`tests/_scratch.spec.ts`, deleted before the PR). It must:
+- [x] **0.1** Add the product catalog and sort options: `src/data/products.ts`, `src/data/sort-options.ts` (+ `Cents` from 0.2: do 0.2 first if preferred) → `feat(data): add typed product catalog and sort options`
+- [x] **0.2** Add the money helper `src/utils/money.ts` → `feat(utils): add cents-based money helper`
+- [x] **0.3** Add messages, routes and protected URLs: `src/data/messages.ts`, `src/data/routes.ts` → `feat(data): add UI messages, routes and protected URLs`
+- [x] **0.4** Add the login cases, accepted accounts and checkout carts: `src/data/login-cases.ts`, `src/data/checkout.ts` → `feat(data): add login cases and checkout cart data`
+- [x] **0.5** Add the storage, session and timeout helpers: `src/utils/storage.ts`, `src/utils/timeouts.ts` → `feat(utils): add storage, session and timeout helpers`
+- [x] **0.6** Add the base pages and components: `BasePage`, `AppPage`, `Header`, `BurgerMenu`, `ItemList` → `feat(pages): add base pages, header, burger menu and item list`
+- [x] **0.7** Extend `LoginPage` (BasePage, errorButton, `.error_icon`, fillCredentials, submit, submitWithEnter, loginAs, dismissError). The auth fixture keeps working. → `feat(pages): extend LoginPage with error handling and Enter submit`
+- [x] **0.8** Add `InventoryPage` and `ProductDetailsPage` → `feat(pages): add inventory and product details page objects`
+- [x] **0.9** Add `CartPage` and the 3 checkout pages. Verify the `cart-list` id on step two with Playwright MCP. → `feat(pages): add cart and checkout page objects`
+- [x] **0.10** Add the `src/pages/index.ts` registry and `ShopFlow` → `feat(pages): add page registry and shop flow`
+- [x] **0.11** Add the pages fixture and merge it into `src/fixtures/index.ts` → `feat(fixtures): add pages fixture merged with auth via mergeTests`
+- [x] **0.12** Add the custom matchers `src/fixtures/matchers.ts` and export them from index → `feat(fixtures): add cart badge, product list and order summary matchers`
+- [x] **0.13** Add the grouped runner `src/utils/grouped.ts` → `feat(utils): add grouped verification test runner`
+- [x] **0.14** Move `tests/seed.spec.ts` onto `@fixtures/index`: guest mode, `loginPage.goto()`. This proves the `@fixtures/*` alias resolves at runtime under TS 7 (no `baseUrl`). If it does not resolve, fix it in tsconfig/config and say so in the PR. → `chore(seed): use project fixtures in the agent seed test`
+- [x] **0.15** Check the foundation with a throwaway spec that is **not committed** (`tests/_scratch.spec.ts`, deleted before the PR). It must:
   - log in, then walk inventory → details → cart → checkout → complete through `shop`;
   - exercise the 3 matchers;
   - run `runGroupedCases` with 3 cases, where 1 fails on purpose, and confirm in the HTML report that 3 steps are shown, the failing step is red, the others run, a summary is attached, and the test is red;
