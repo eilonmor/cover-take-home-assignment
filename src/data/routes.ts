@@ -12,6 +12,19 @@ export const ROUTES = {
   checkoutComplete: '/checkout-complete.html',
 } as const;
 
+const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+/**
+ * A full-URL pattern for a route, for `toHaveURL`. It works with any base URL.
+ * A route with a query string (e.g. `ROUTES.details(4)`) must match it exactly; a route without one
+ * accepts any query string. A trailing hash is always allowed.
+ */
+export function routePattern(route: string): RegExp {
+  const [path = route, query] = route.split('?');
+  const search = query === undefined ? '(?:\\?[^#]*)?' : escapeRegExp(`?${query}`);
+  return new RegExp(`^[a-z]+://[^/]+${escapeRegExp(path)}${search}(?:#.*)?$`);
+}
+
 /** A page that requires a session, with the error the login page shows when it is opened without one. */
 export interface ProtectedUrl {
   /** The URL to open (may include a query string). */
