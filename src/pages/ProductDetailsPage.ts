@@ -31,6 +31,14 @@ export class ProductDetailsPage extends AppPage {
     this.backButton = page.getByTestId('back-to-products');
   }
 
+  /**
+   * Not supported: without an id the site shows its "ITEM NOT FOUND" page, which would still look loaded.
+   * Use `open(key)` instead.
+   */
+  override async goto(): Promise<void> {
+    throw new Error('ProductDetailsPage.goto() has no product id; use productDetailsPage.open(key) instead.');
+  }
+
   /** Opens the product's details page by URL and waits until it is ready. */
   async open(key: ProductKey): Promise<void> {
     await this.page.goto(ROUTES.details(PRODUCTS[key].id));
