@@ -12,8 +12,8 @@ Each phase runs in its own session, on its own branch from an up-to-date `main`,
 | 1. Login tests | `feat/tests-login` | [#3](https://github.com/eilonmor/cover-take-home-assignment/pull/3) | Merged |
 | 2. Products tests | `feat/tests-products` | [#4](https://github.com/eilonmor/cover-take-home-assignment/pull/4) | Merged |
 | 3. Cart tests | `feat/tests-cart` | [#5](https://github.com/eilonmor/cover-take-home-assignment/pull/5) | Merged |
-| 4. Checkout tests | `feat/tests-checkout` | | In review |
-| 5. Navigation tests | `feat/tests-navigation` | | Not started |
+| 4. Checkout tests | `feat/tests-checkout` | [#6](https://github.com/eilonmor/cover-take-home-assignment/pull/6) | Merged |
+| 5. Navigation tests | `feat/tests-navigation` | | In review |
 | 6. Docs & delivery | `docs/delivery` | | Not started |
 
 Status values: `Not started` → `In progress` → `In review` (PR open) → `Merged`.
@@ -592,42 +592,44 @@ Phase 4 (Checkout tests) of docs/ROADMAP.md. Windows machine.
 Spec: [`specs/05-logout-navigation.md`](../specs/05-logout-navigation.md). Folder: `tests/navigation/`. Describe: `Logout & Navigation`.
 
 ### Tasks
-- [ ] **5.1 TC-NAV-01 Logout returns to login page with empty fields and cleared session cookie.** `tests/navigation/logout-clears-session.spec.ts`. Authenticated. Tags `@smoke`. Covers AC-NAV-05.
-  - `inventoryPage.goto()` → `getSessionCookie(context)` value = `getUser('standard').username`.
+- [x] **5.1 TC-NAV-01 Logout returns to login page with empty fields and cleared session cookie.** `tests/navigation/logout-clears-session.spec.ts`. Authenticated. Tags `@smoke`. Covers AC-NAV-05.
+  - `inventoryPage.goto()` → `getSessionCookie(context)` value = `getUser(authUser).username` (the worker's user, standard by default).
   - `menu.logout()` → the URL is `/`; the login button is visible; username and password `toHaveValue('')`; the error has 0; `getSessionCookie` is `undefined`. Use `expect.poll` for the cookie checks.
   → `test(navigation): add TC-NAV-01 logout clears session`
-- [ ] **5.2 TC-NAV-02 Protected pages are blocked without a valid session.** `tests/navigation/protected-urls-blocked.spec.ts`. **Guest**. Tags `@smoke @regression`. Covers AC-NAV-06, 12. **Grouped** over `SESSION_STATES × PROTECTED_URLS` (12 cases, named `<state> <url>`).
+- [x] **5.2 TC-NAV-02 Protected pages are blocked without a valid session.** `tests/navigation/protected-urls-blocked.spec.ts`. **Guest**. Tags `@smoke @regression`. Covers AC-NAV-06, 12. **Grouped** over `SESSION_STATES × PROTECTED_URLS` (12 cases, named `<state> <url>`).
   - Each case starts with `resetBrowserState(page)`.
-  - State B also does `loginPage.loginAs('standard')` → `inventoryPage.waitForLoaded()` → hard check that the cookie exists → `removeSessionCookie(context)`.
+  - State B also logs in through the form already open (`fillCredentials(getUser('standard'))` + `submit()`, no second load of `/`) → `inventoryPage.waitForLoaded()` → hard check that the cookie exists → `removeSessionCookie(context)`.
   - Then `page.goto(url)`. Soft checks: `toHaveURL('/')` (the redirect is client-side and auto-waited), the error has the exact `expectedError`, the login button is visible, and `header.cartLink` and `inventoryPage.container` have 0.
   → `test(navigation): add TC-NAV-02 grouped protected URLs`
-- [ ] **5.3 TC-NAV-03 Browser Back/Forward after logout does not expose inventory.** `tests/navigation/back-forward-after-logout.spec.ts`. Authenticated. Tags `@regression`. Covers AC-NAV-07.
+- [x] **5.3 TC-NAV-03 Browser Back/Forward after logout does not expose inventory.** `tests/navigation/back-forward-after-logout.spec.ts`. Authenticated. Tags `@regression`. Covers AC-NAV-07.
   - `inventoryPage.goto()` → `menu.logout()` → `page.goBack()` → the login button is visible, the inventory container has 0, and the error is `protectedPageError('/inventory.html')`.
-  - `page.goForward()` → the login button is visible and the container has 0.
+  - `page.goForward()`, wrapped in `recordNavigations` (it returns `null` for these same-document moves), → a navigation happened, the URL is `/`, the login button is visible and the container has 0.
   → `test(navigation): add TC-NAV-03 back/forward after logout`
-- [ ] **5.4 TC-NAV-04 Reset App State clears the cart and badge; buttons revert after reload.** `tests/navigation/reset-app-state.spec.ts`. Authenticated. Tags `@regression`. Covers AC-NAV-09, 10.
+- [x] **5.4 TC-NAV-04 Reset App State clears the cart and badge; buttons revert after reload.** `tests/navigation/reset-app-state.spec.ts`. Authenticated. Tags `@regression`. Covers AC-NAV-09, 10.
   - Add backpack and bikeLight → badge 2.
   - `menu.resetAppState()` → badge 0; `expect.poll(readCartIds)` equals `[]`; the URL is still `/inventory.html`.
   - **Known issue D1:**
-    - Push `{ type: 'known-issue', description: 'D1: Reset App State leaves "Remove" buttons until reload' }`.
+    - Push `{ type: 'known-issue', description: 'D1: Reset App State leaves "Remove" buttons until reload …' }` only while `inventoryPage.removeButtons` still has stale buttons (read once, never asserted), so the annotation disappears once the site is fixed.
     - Do **not** assert the buttons before the reload.
   - `page.reload()` → both add buttons are visible, `getByTestId(/^remove-/)` has 0 (as the page object locator `inventoryPage.removeButtons`), and the badge is 0.
   → `test(navigation): add TC-NAV-04 reset app state`
-- [ ] **5.5 TC-NAV-05 Burger menu opens with 5 items and closes with the X button.** `tests/navigation/burger-menu.spec.ts`. Authenticated. Tags `@smoke`. Covers AC-NAV-01, 02.
+- [x] **5.5 TC-NAV-05 Burger menu opens with 5 items and closes with the X button.** `tests/navigation/burger-menu.spec.ts`. Authenticated. Tags `@smoke`. Covers AC-NAV-01, 02.
   - `menu.wrapper` `aria-hidden="true"`.
   - `open()` → `"false"`; `menu.items` `toHaveText(MENU_ITEMS)` in order; each is visible; `aboutLink` href = `ABOUT_URL`.
   - `close()` → `"true"`; the URL is still `/inventory.html`.
   → `test(navigation): add TC-NAV-05 burger menu open/close`
-- [ ] **5.6 TC-NAV-06 All Items returns to inventory from cart, details and checkout pages.** `tests/navigation/all-items-navigation.spec.ts`. Authenticated. Tags `@regression`. Covers AC-NAV-04.
+- [x] **5.6 TC-NAV-06 All Items returns to inventory from cart, details and checkout pages.** `tests/navigation/all-items-navigation.spec.ts`. Authenticated. Tags `@regression`. Covers AC-NAV-04.
   - A `test.step` per page: cart, details (`item-4`), checkout step one, step two, and complete. Complete is included because AC-NAV-04 lists it.
-  - Each step reaches the page through the shop flow or page objects, asserts the URL, then `menu.goToAllItems()` → `/inventory.html` and title "Products". Use soft checks.
+  - Each step starts on the inventory; the checkout steps first `clearCart(page)` and then use `shop.startCheckout` / `reachOverview` / `placeOrder`. The page's `waitForLoaded()` is the hard URL guard, then `menu.goToAllItems()` → `inventoryPage.waitForLoaded()` (hard) and title "Products" (soft).
   → `test(navigation): add TC-NAV-06 All Items from every page`
 
+Known issues: DEF-NAV-MENU-RACE, found while automating TC-NAV-06 (WebKit, right after a page swap or load). react-burger-menu sets `hidden` on `.bm-menu-wrap` 500 ms after every mount and toggle, and on unmount. An open click that lands as such a timer fires leaves the menu at `aria-hidden="false"` with `display: none`, so no item can be clicked. A real user would see the menu fail to open and have to click again. `BurgerMenu.open()` (and `ensureOpen()`) wait until the menu is either fully slid in or stuck, both read directly from the wrapper, and if stuck toggle closed, wait for the close timer's `hidden`, and reopen once. D1 (Reset App State) and the menu race go into the TEST_PLAN risks.
+
 ### Review checklist (phase-specific)
-- [ ] The menu is opened and closed only through `BurgerMenu` (exceptions `#react-burger-*` and `.bm-menu-wrap`). Its state is read from `aria-hidden`, not from item visibility.
-- [ ] TC-NAV-02 has 12 named steps, state B uses a real UI login, and each case resets state.
-- [ ] D1 is an annotation, not an assertion, and the test stays green.
-- [ ] Cookie and storage checks go through `src/utils/storage.ts` with `expect.poll`.
+- [x] The menu is opened and closed only through `BurgerMenu` (exceptions `#react-burger-*` and `.bm-menu-wrap`). Its state is read from `aria-hidden`, not from item visibility.
+- [x] TC-NAV-02 has 12 named steps, state B uses a real UI login, and each case resets state.
+- [x] D1 is an annotation, not an assertion, and the test stays green.
+- [x] Cookie and storage checks go through `src/utils/storage.ts` with `expect.poll`.
 
 ### Execution prompt
 ```text

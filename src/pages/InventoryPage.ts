@@ -20,11 +20,17 @@ export class InventoryPage extends AppPage {
   readonly sortOptions: Locator;
   /** The visible label of the selected sort option. */
   readonly activeSortOption: Locator;
+  /**
+   * Every "Remove" button rendered in the list. It reflects the rendered buttons, not the cart storage:
+   * after Reset App State the cart is empty but the buttons stay until a reload (spec 05 §6, D1).
+   */
+  readonly removeButtons: Locator;
 
   constructor(page: Page) {
     super(page);
     this.container = page.getByTestId('inventory-container');
     this.list = new ItemList(page.getByTestId('inventory-list'));
+    this.removeButtons = this.list.root.getByTestId(/^remove-/);
     this.sortSelect = page.getByTestId('product-sort-container');
     this.sortOptions = this.sortSelect.getByRole('option');
     this.activeSortOption = page.getByTestId('active-option');
