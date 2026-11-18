@@ -3,6 +3,9 @@ import type { CheckoutInfo } from '../data/checkout';
 import { ROUTES, routePattern } from '../data/routes';
 import { AppPage } from './AppPage';
 
+/** Total budget for filling one input, retries included (see `fillField`). */
+const FILL_TIMEOUT = 5_000;
+
 /** Page object for checkout step one, "Your Information" (`/checkout-step-one.html`). */
 export class CheckoutInfoPage extends AppPage {
   /**
@@ -43,15 +46,27 @@ export class CheckoutInfoPage extends AppPage {
 
   /** Fills each given field; an empty string clears it, a missing one is left untouched. */
   async fill(info: Partial<CheckoutInfo>): Promise<void> {
-    if (info.firstName !== undefined) {
-      await this.firstName.fill(info.firstName);
+    await this.fillField(this.firstName, info.firstName);
+    await this.fillField(this.lastName, info.lastName);
+    await this.fillField(this.postalCode, info.postalCode);
+  }
+
+  /**
+   * Fills one input and confirms it holds the value. Right after the cart -> step one swap the app
+   * itself calls blur() on the just-focused input (observed on WebKit, ~10 ms after focus). Playwright's
+   * fill() is focus -> insert text, so when that blur lands in between, the text is silently dropped
+   * and the field stays empty. The fill and its confirmation are therefore retried as one unit,
+   * which only ever repeats in that rare window (the blur happens once). The retry is bounded, so an
+   * input that never keeps its value (problem_user's last name, spec 04 §6) fails here fast and clearly.
+   */
+  private async fillField(input: Locator, value: string | undefined): Promise<void> {
+    if (value === undefined) {
+      return;
     }
-    if (info.lastName !== undefined) {
-      await this.lastName.fill(info.lastName);
-    }
-    if (info.postalCode !== undefined) {
-      await this.postalCode.fill(info.postalCode);
-    }
+    await expect(async () => {
+      await input.fill(value);
+      await expect(input).toHaveValue(value, { timeout: 1_000 });
+    }).toPass({ timeout: FILL_TIMEOUT });
   }
 
   /** Clicks Continue without waiting for a navigation (validation may keep the page). */
