@@ -1,7 +1,7 @@
 import { test, expect } from '@fixtures/index';
 import { CHECKOUT_TEXT, PAGE_TITLES } from '@data/messages';
 import { PRODUCTS, type ProductKey } from '@data/products';
-import { summarize, summaryLabels } from '@utils/money';
+import { summarize, summaryLabels, withFloatNoise } from '@utils/money';
 
 // Spec: specs/04-checkout.md, scenario 1.4. Authenticated (default): starts logged in as standard_user, empty cart.
 
@@ -14,7 +14,7 @@ const EXPECTED = summaryLabels(summarize(ITEMS.map((key) => PRODUCTS[key].priceC
  */
 const SUBTOTAL_KNOWN_ISSUE =
   'DEF-CHK-SUBTOTAL: the item total is not rounded to 2 decimals; fleece jacket + onesie shows ' +
-  '"Item total: $57.980000000000004" instead of "Item total: $57.98" (AC-CHK-11). Only the amount up to the cent is checked here.';
+  '"Item total: $57.980000000000004" instead of "Item total: $57.98" (AC-CHK-11). The amount is checked to the cent, the float noise is tolerated.';
 
 test.describe('Checkout', () => {
   test(
@@ -47,11 +47,16 @@ test.describe('Checkout', () => {
       });
 
       await test.step('The summary amounts follow the cents rule', async () => {
-        test.info().annotations.push({ type: 'known-issue', description: SUBTOTAL_KNOWN_ISSUE });
-        // The known defect is neither asserted nor hidden: the intended label must be there, to the cent
-        // (any wrong amount fails), and the unrounded float tail is tolerated. toHaveOrderSummary would
-        // fail on the defect, so the labels are checked one by one.
-        await expect.soft(checkoutOverviewPage.subtotalLabel).toContainText(EXPECTED.subtotal);
+        // The known defect is neither asserted nor hidden. The subtotal must be the intended label, or that
+        // label followed only by float noise: the amount is right to the cent, anything else fails.
+        // toHaveOrderSummary would fail on the defect, so the labels are checked one by one.
+        const { subtotalLabel } = checkoutOverviewPage;
+        await expect.soft(subtotalLabel).toHaveText(withFloatNoise(EXPECTED.subtotal));
+        const shown = await subtotalLabel.innerText();
+        if (shown !== EXPECTED.subtotal) {
+          // Recorded only while the defect shows: once the site rounds correctly, the annotation disappears.
+          test.info().annotations.push({ type: 'known-issue', description: `${SUBTOTAL_KNOWN_ISSUE} Shown: "${shown}".` });
+        }
         await expect.soft(checkoutOverviewPage.taxLabel).toHaveText(EXPECTED.tax);
         await expect.soft(checkoutOverviewPage.totalLabel).toHaveText(EXPECTED.total);
       });

@@ -1,5 +1,6 @@
 import { protectedPageError } from './messages';
 import type { ProductId } from './products';
+import { escapeRegExp } from '../utils/regexp';
 
 /** App routes, relative to `baseURL`. */
 export const ROUTES = {
@@ -11,8 +12,6 @@ export const ROUTES = {
   checkoutOverview: '/checkout-step-two.html',
   checkoutComplete: '/checkout-complete.html',
 } as const;
-
-const escapeRegExp = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
  * A full-URL pattern for a route, for `toHaveURL`. It works with any origin (scheme + host), but the
