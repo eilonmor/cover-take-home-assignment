@@ -44,6 +44,14 @@ export const PRODUCT_TEXT = {
   backToProducts: 'Back to products',
 } as const;
 
+/** Column headers and button labels of the cart page (spec 03 §4). */
+export const CART_TEXT = {
+  quantityLabel: 'QTY',
+  descriptionLabel: 'Description',
+  continueShopping: 'Continue Shopping',
+  checkout: 'Checkout',
+} as const;
+
 /** Static texts on the checkout overview and complete pages (spec 04 §4). */
 export const CHECKOUT_TEXT = {
   paymentLabel: 'Payment Information:',

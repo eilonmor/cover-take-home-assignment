@@ -37,6 +37,16 @@ export class CartPage extends AppPage {
     return this.page.getByTestId(`remove-${PRODUCTS[key].slug}`);
   }
 
+  /**
+   * Any editable quantity control (text or number input) in the product's row. The cart has none:
+   * quantity is fixed at 1 (AC-CART-06), so tests expect a count of 0. A role query scoped to the row,
+   * because there is no data-test id for an element that must not exist.
+   */
+  quantityInputs(key: ProductKey): Locator {
+    const row = this.list.row(key);
+    return row.getByRole('textbox').or(row.getByRole('spinbutton'));
+  }
+
   /** Removes each product, in order, waiting for its row to disappear. */
   async remove(...keys: readonly ProductKey[]): Promise<void> {
     for (const key of keys) {
