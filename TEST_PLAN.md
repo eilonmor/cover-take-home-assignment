@@ -196,8 +196,26 @@ None of these is asserted as expected behavior. Two of them appear inside the Se
 | **`performance_glitch_user` timing.** The inventory takes about 5 s to render. | Default timeouts would fail the login. | `SLOW_RENDER_TIMEOUT` (15 s) for this user. The worker login has its own 60 s budget. |
 | **Cart kept in `localStorage`.** The cart is browser state, not server state. | State leaking between tests, or between cases of a grouped test, would hide or fake results. | Every test gets a new browser context. Grouped cases reset their state first (`clearCart`, `resetBrowserState`), and TC-CHK-03 hard-checks badge 0 before each cart. |
 | **Burger menu animation (WebKit).** See DEF-NAV-MENU-RACE. | A rare flaky failure when the menu is opened right after a page loads. | The open state is read from `aria-hidden` and the wrapper's visibility, with one reopen when stuck. |
+| **Slow machine or site.** A run from a clone under `%TEMP%` on Windows was about 2.5× slower under parallel load, likely from antivirus scanning the per-test video and trace files. TC-NAV-06 timed out there. | Long multi-journey tests can exceed the 30 s test timeout. | TC-NAV-06 (five journeys in one test) uses `test.slow()`. The grouped tests size their own budget from the case count. The README suggests fewer workers on slow machines. |
 | **Shared login per worker.** Each worker logs in once and reuses the storage state. | A stale session could mask a login problem. | Auth files are wiped at the start of every run and recreated per worker, project and user. |
 
 ## 7. Summary
 
-_To be completed after the final run (task 6.6)._
+**Final run:** 2026-11-18, Windows 11, Node 22.19, Playwright 1.65.1, 10 local workers, `retries: 1`, against the live site.
+
+| Run | Command | Chromium | Firefox | WebKit | Total | Flaky / retried | Duration |
+|-----|---------|----------|---------|--------|-------|-----------------|----------|
+| Full suite | `npm test` | 31 / 31 | 31 / 31 | 31 / 31 | **93 passed** | 0 | 2.1 min |
+| Smoke | `npm run test:smoke` | 16 / 16 | 16 / 16 | 16 / 16 | 48 passed | 0 | 1.0 min |
+| Regression | `npm run test:regression` | 18 / 18 | 18 / 18 | 18 / 18 | 54 passed | 0 | 1.6 min |
+| Fresh clone, no `.env` | `npm install && npm test` | 31 / 31 | 31 / 31 | 31 / 31 | 93 passed | 0 | 1.9 min |
+
+- 31 per browser = the 30 test cases + the agents' seed test. 16 smoke + 18 regression = 30, because 4 tests carry both tags (TC-LOGIN-02, TC-PROD-03, TC-CHK-02, TC-NAV-02).
+- **Grouped tests:** every case passed in every browser. TC-LOGIN-02 13/13, TC-LOGIN-04 4/4, TC-CHK-03 10/10, TC-NAV-02 12/12.
+- **Known issues observed** (annotated, not failing), in all 3 browsers:
+  - DEF-CHK-SUBTOTAL in TC-CHK-04: "Item total: $57.980000000000004".
+  - D1 in TC-NAV-04: 2 "Remove" buttons are left until the reload.
+- **Reports:** `npm run report` serves the HTML report, and `npm run allure:generate` / `npm run allure:open` build and serve the Allure 3 report.
+- **CI:** the GitHub Actions workflow runs typecheck plus one job per browser on every pull request. The result for the delivery PR is recorded in its description.
+
+**Conclusion:** all 30 test cases (65 verified cases) pass on the 3 browsers with no flakiness. The defects found are documented in §6.1. Two of them (DEF-CHK-SUBTOTAL, D1) are visible in every run as annotations, and the others are listed as Backlog candidates written against the intended behavior.

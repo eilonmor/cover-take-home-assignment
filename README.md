@@ -210,6 +210,8 @@ npm test -- --output=test-results-cli
 
 (`test-results-cli/` is git-ignored.)
 
+**Timeouts on a slow machine.** The full run takes about 2 minutes with 10 workers. On a slower machine or connection, use fewer workers, for example `npm test -- --workers=2`. On Windows, avoid running from a folder under `%TEMP%`: there the run was about 2.5× slower, likely because antivirus scans the per-test video and trace files.
+
 **`Missing environment variable "…"`.** Both `.env` and `.env.example` are missing, or the variable is empty in your `.env`. Copy `.env.example` to `.env` again.
 
 **Linux: the browsers fail to start.** Run `npx playwright install --with-deps` to install their system libraries.
