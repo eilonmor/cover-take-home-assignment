@@ -10,7 +10,7 @@ The suite has **30 tests**: 6 per area, for Login, Products, Cart, Checkout, and
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) **20 or newer** (developed on Node 22), with npm.
+- [Node.js](https://nodejs.org/) **22.18 or newer**, on an even (LTS) major: 22, 24 or 26 (developed on Node 22.19), with npm. The floor comes from the Allure 3 CLI; Node 23 and 25 are not supported by one of its dependencies.
 - [Git](https://git-scm.com/).
 - Windows, macOS or Linux. On Linux, the browsers also need system libraries (see below).
 
@@ -71,7 +71,7 @@ npm run report
 
 It opens `playwright-report/` from the last run. Each test shows its steps, its annotations (`covers`, `known-issue`, `grouped`) and its attachments. A failed test also keeps a screenshot, a video and a trace (`retain-on-failure`), and the trace opens in the Trace Viewer from the report.
 
-**Allure Report 3** (optional bonus). Nothing extra needs installing: `npm install` already added the `allure-playwright` reporter and the Allure 3 CLI, which is a Node package and needs no Java. Every test run writes raw results to `allure-results/`, and each run starts by clearing the previous results.
+**Allure Report 3** (optional bonus). Nothing extra needs installing: `npm install` already added the `allure-playwright` reporter and the Allure 3 CLI, which is a Node package and needs no Java (it is what sets the Node 22.18 floor above). Every test run writes raw results to `allure-results/`, and each run starts by clearing the previous results.
 
 ```bash
 npm run allure:generate   # allure generate allure-results -o allure-report --clean

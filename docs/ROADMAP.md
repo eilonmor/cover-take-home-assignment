@@ -668,7 +668,7 @@ Phase 5 (Logout & Navigation tests) of docs/ROADMAP.md. Windows machine.
   - Summary: the final run results from 6.6.
   → `docs: add TEST_PLAN.md`
 - [x] **6.3 `README.md` rewrite.**
-  - Project and site description; prerequisites (Node ≥ 20, npm, Git).
+  - Project and site description; prerequisites (Node 22.18+, even majors, npm, Git).
   - Installation: `git clone` → `npm install` (postinstall downloads the browsers; on Linux, `npx playwright install --with-deps`) → optionally `cp .env.example .env`.
   - Running:
     - all tests, a single file, a single test with `-g "TC-LOGIN-01"`;
