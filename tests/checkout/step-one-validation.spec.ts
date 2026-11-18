@@ -19,7 +19,9 @@ test.describe('Checkout', () => {
 
       /**
        * Clicks Continue and checks that validation kept the user on step one with this error.
-       * Hard guards: the error appears (validation ran) and the URL is still step one.
+       * Hard guards: an error is shown and the URL is still step one. From the 2nd call on, the previous
+       * error is still on screen, so the guard alone does not prove validation ran again: the soft text
+       * check does (it fails if the message is not the new one), and a failed text check fails the test.
        */
       const continueExpectingError = async (expected: string): Promise<void> => {
         await checkoutInfoPage.continue();
