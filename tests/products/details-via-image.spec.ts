@@ -17,7 +17,7 @@ test.describe('Products', () => {
       for (const key of OPENED) {
         const product = PRODUCTS[key];
         await test.step(`${product.name} (id ${product.id})`, async () => {
-          // Hard guard: openDetailsByImage waits for /inventory-item.html?id=N; the rest reads that page.
+          // Hard guard: the exact /inventory-item.html?id=N URL and the details page rendered.
           await inventoryPage.openDetailsByImage(key);
           await productDetailsPage.waitForLoaded(key);
 
@@ -34,7 +34,7 @@ test.describe('Products', () => {
           await expect.soft(productDetailsPage.addButton).toHaveText(PRODUCT_TEXT.addToCart);
           await expect.soft(productDetailsPage.backButton).toHaveText(PRODUCT_TEXT.backToProducts);
 
-          // Hard guard: back on the inventory page, which the next product starts from.
+          // Hard guard: back on /inventory.html with the list rendered, which the next product starts from.
           await productDetailsPage.backToProducts();
           await inventoryPage.waitForLoaded();
         });

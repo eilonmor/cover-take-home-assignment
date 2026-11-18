@@ -25,34 +25,35 @@ test.describe('Products', () => {
         await expect.soft(inventoryPage.header).toHaveCartBadge(inCart.length);
       }
 
+      // addToCart / removeFromCart wait for the button to toggle: a failed toggle fails at once, with its cause.
       await test.step('A fresh context starts with an empty cart', async () => {
         await inventoryPage.goto();
         await expectCartState([]);
       });
 
       await test.step('Add Backpack', async () => {
-        await inventoryPage.addButton('backpack').click();
+        await inventoryPage.addToCart('backpack');
         await expectCartState(['backpack']);
       });
 
       await test.step('Add Bike Light', async () => {
-        await inventoryPage.addButton('bikeLight').click();
+        await inventoryPage.addToCart('bikeLight');
         await expectCartState(['backpack', 'bikeLight']);
       });
 
       await test.step('Remove Backpack', async () => {
-        await inventoryPage.removeButton('backpack').click();
+        await inventoryPage.removeFromCart('backpack');
         await expectCartState(['bikeLight']);
       });
 
       await test.step('Remove Bike Light: the badge disappears', async () => {
-        await inventoryPage.removeButton('bikeLight').click();
+        await inventoryPage.removeFromCart('bikeLight');
         await expectCartState([]);
       });
 
       // The slug "test.allthethings()-t-shirt-(red)" goes to getByTestId as an exact string (no CSS).
       await test.step('Add Red T-Shirt (slug with dots and parentheses)', async () => {
-        await inventoryPage.addButton('redTShirt').click();
+        await inventoryPage.addToCart('redTShirt');
         await expectCartState(['redTShirt']);
       });
     },
