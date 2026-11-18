@@ -9,8 +9,8 @@ Each phase runs in its own session, on its own branch from an up-to-date `main`,
 | Phase | Branch | PR | Status |
 |-------|--------|----|--------|
 | 0. Foundation | `feat/foundation` | [#2](https://github.com/eilonmor/cover-take-home-assignment/pull/2) | Merged |
-| 1. Login tests | `feat/tests-login` | | In review |
-| 2. Products tests | `feat/tests-products` | | Not started |
+| 1. Login tests | `feat/tests-login` | [#3](https://github.com/eilonmor/cover-take-home-assignment/pull/3) | Merged |
+| 2. Products tests | `feat/tests-products` | | In progress |
 | 3. Cart tests | `feat/tests-cart` | | Not started |
 | 4. Checkout tests | `feat/tests-checkout` | | Not started |
 | 5. Navigation tests | `feat/tests-navigation` | | Not started |
