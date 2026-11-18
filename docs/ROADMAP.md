@@ -8,8 +8,8 @@ Each phase runs in its own session, on its own branch from an up-to-date `main`,
 
 | Phase | Branch | PR | Status |
 |-------|--------|----|--------|
-| 0. Foundation | `feat/foundation` | | In review |
-| 1. Login tests | `feat/tests-login` | | Not started |
+| 0. Foundation | `feat/foundation` | [#2](https://github.com/eilonmor/cover-take-home-assignment/pull/2) | Merged |
+| 1. Login tests | `feat/tests-login` | | In review |
 | 2. Products tests | `feat/tests-products` | | Not started |
 | 3. Cart tests | `feat/tests-cart` | | Not started |
 | 4. Checkout tests | `feat/tests-checkout` | | Not started |
@@ -76,6 +76,7 @@ test.describe('Login', () => {
 **Windows**
 - If `npx playwright test` hangs at "clear output", a leftover node process is holding `test-results/`.
 - Report it to the owner. Do not kill processes.
+- Workaround (approved in Phase 1): run tests with `--output=test-results-cli` (git-ignored), for example `npm test -- --output=test-results-cli`. The Playwright MCP generator and the VS Code extension leave workers holding `test-results/`, and a separate output folder avoids waiting on them.
 
 **Common Definition of done (every phase)**
 - [ ] `npm run typecheck` passes.
@@ -328,28 +329,28 @@ Phase 0 (Foundation) of docs/ROADMAP.md. Windows machine; use PowerShell or Git 
 Spec: [`specs/01-login.md`](../specs/01-login.md). Folder: `tests/login/`. **Mode:** every file is **guest**: `test.use({ storageState: GUEST_STATE })` at the top of the file. Describe: `Login`.
 
 ### Tasks
-- [ ] **1.1 TC-LOGIN-01 Standard user logs in successfully.** `tests/login/standard-user-login.spec.ts`. Tags `@smoke`. Covers AC-LOGIN-01. Not grouped.
+- [x] **1.1 TC-LOGIN-01 Standard user logs in successfully.** `tests/login/standard-user-login.spec.ts`. Tags `@smoke`. Covers AC-LOGIN-01. Not grouped.
   - Steps: `loginPage.goto()` → `fillCredentials(getUser('standard'))` → `submit()` → `inventoryPage.waitForLoaded()`.
   - Expect: the URL is `/inventory.html`, `title` = `PAGE_TITLES.inventory`, `list.items` has 6, and `loginPage.errorMessage` has 0.
   → `test(login): add TC-LOGIN-01 standard user login`
-- [ ] **1.2 TC-LOGIN-02 Invalid login attempts display the correct error message.** `tests/login/invalid-login-errors.spec.ts`. Tags `@smoke @regression`. Covers AC-LOGIN-02..07, 09, 12, 16, 17. **Grouped** over `invalidLoginCases()` (13 cases).
+- [x] **1.2 TC-LOGIN-02 Invalid login attempts display the correct error message.** `tests/login/invalid-login-errors.spec.ts`. Tags `@smoke @regression`. Covers AC-LOGIN-02..07, 09, 12, 16, 17. **Grouped** over `invalidLoginCases()` (13 cases).
   - Each case: `loginPage.goto()` (fresh state) → `fillCredentials` (empty values are left untouched) → `submit()`.
   - Soft checks: the error has the exact text, the URL is still `/`, `errorButton` is visible, both inputs `toHaveClass(/\berror\b/)`, and `inputErrorIcons` has 2.
   → `test(login): add TC-LOGIN-02 grouped invalid login errors`
-- [ ] **1.3 TC-LOGIN-03 Error message can be dismissed and the user can then log in.** `tests/login/dismiss-error.spec.ts`. Tags `@regression`. Covers AC-LOGIN-08. Not grouped.
+- [x] **1.3 TC-LOGIN-03 Error message can be dismissed and the user can then log in.** `tests/login/dismiss-error.spec.ts`. Tags `@regression`. Covers AC-LOGIN-08. Not grouped.
   - Submit empty → `LOGIN_ERRORS.usernameRequired` and the error button is visible → `dismissError()`.
   - Expect: the error has 0, `inputErrorIcons` has 0.
   - Then log in as standard → inventory "Products".
   → `test(login): add TC-LOGIN-03 dismiss error then log in`
-- [ ] **1.4 TC-LOGIN-04 All other accepted accounts can log in.** `tests/login/accepted-accounts-login.spec.ts`. Tags `@regression`. Covers AC-LOGIN-15. **Grouped** over `ACCEPTED_ACCOUNTS` (4 users).
+- [x] **1.4 TC-LOGIN-04 All other accepted accounts can log in.** `tests/login/accepted-accounts-login.spec.ts`. Tags `@regression`. Covers AC-LOGIN-15. **Grouped** over `ACCEPTED_ACCOUNTS` (4 users).
   - Each case: `resetBrowserState(page)` (clears the previous case's session) → `loginPage.loginAs(user)`.
   - Soft checks: the URL is `/inventory.html`, the title is "Products", 6 items, no error. Use `timeout: SLOW_RENDER_TIMEOUT` for `performanceGlitch`.
   - Do not assert images or prices: these users have known catalog defects.
   → `test(login): add TC-LOGIN-04 grouped accepted accounts login`
-- [ ] **1.5 TC-LOGIN-05 Enter key submits the login form.** `tests/login/enter-key-submit.spec.ts`. Tags `@regression`. Covers AC-LOGIN-11.
+- [x] **1.5 TC-LOGIN-05 Enter key submits the login form.** `tests/login/enter-key-submit.spec.ts`. Tags `@regression`. Covers AC-LOGIN-11.
   - `fillCredentials(standard)` → `submitWithEnter()` → the URL is `/inventory.html` and the title is "Products".
   → `test(login): add TC-LOGIN-05 Enter key submits login`
-- [ ] **1.6 TC-LOGIN-06 Login form initial state.** `tests/login/login-form-initial-state.spec.ts`. Tags `@regression`. Covers AC-LOGIN-10.
+- [x] **1.6 TC-LOGIN-06 Login form initial state.** `tests/login/login-form-initial-state.spec.ts`. Tags `@regression`. Covers AC-LOGIN-10.
   - Soft checks: username and password are visible, empty (`toHaveValue('')`) and have the placeholders `Username` / `Password`; password has `type="password"`; the login button has value `Login`; the error has 0.
   - Then fill the password → it still has `type="password"` and value = `ENV.password`.
   → `test(login): add TC-LOGIN-06 login form initial state`
@@ -360,10 +361,10 @@ Known issues: none in the Selected set. The `performance_glitch_user` slowness i
 The common checklist. Login has exactly 6 tests, so the full run has 18 login results (6 × 3 browsers).
 
 ### Review checklist (phase-specific)
-- [ ] The 13 + 4 cases come from `src/data/login-cases.ts`, with no inline credentials. The usernames come from `getUser()`.
-- [ ] The grouped tests use `runGroupedCases`, and every check inside a case is `expect.soft`.
-- [ ] Empty fields are left untouched, not filled with `''`, as the spec says.
-- [ ] No test depends on the worker auth. Every file is guest.
+- [x] The 13 + 4 cases come from `src/data/login-cases.ts`, with no inline credentials. The usernames come from `getUser()`.
+- [x] The grouped tests use `runGroupedCases`, and every check inside a case is `expect.soft`, except one hard guard per case (the error is shown / the inventory URL is reached). The guard makes a broken case fail fast inside its own step, so it cannot time out the step and skip the cases after it.
+- [x] Empty fields are left untouched, not filled with `''`, as the spec says.
+- [x] No test depends on the worker auth. Every file is guest.
 
 ### Execution prompt
 ```text

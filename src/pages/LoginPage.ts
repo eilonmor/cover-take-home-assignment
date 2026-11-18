@@ -5,6 +5,13 @@ import { BasePage } from './BasePage';
 
 /** Page object for the login page (`/`). */
 export class LoginPage extends BasePage {
+  /**
+   * Class pattern of an input in the red error state. It matches the exact `error` class token
+   * only: the `input_error` class stays on the inputs after the error is dismissed, so it is not
+   * a signal, and a hyphenated class such as `has-error` must not match either.
+   */
+  readonly inputErrorClass = /(?:^|\s)error(?:\s|$)/;
+
   readonly path = ROUTES.login;
 
   readonly usernameInput: Locator;
@@ -42,6 +49,11 @@ export class LoginPage extends BasePage {
     if (password) {
       await this.passwordInput.fill(password);
     }
+  }
+
+  /** Types the password key by key, as a user would (unlike `fill`, it fires every key event). */
+  async typePassword(password: string): Promise<void> {
+    await this.passwordInput.pressSequentially(password);
   }
 
   /** Clicks the login button. */
