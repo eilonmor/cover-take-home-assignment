@@ -10,7 +10,7 @@ The suite has **30 tests**: 6 per area, for Login, Products, Cart, Checkout, and
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) **22.18 or newer**, on an even (LTS) major: 22, 24 or 26 (developed on Node 22.19), with npm. The floor comes from the Allure 3 CLI; Node 23 and 25 are not supported by one of its dependencies.
+- [Node.js](https://nodejs.org/) **22.18 or newer** (developed on Node 22.19), with npm. The floor comes from the Allure 3 CLI.
 - [Git](https://git-scm.com/).
 - Windows, macOS or Linux. On Linux, the browsers also need system libraries (see below).
 
