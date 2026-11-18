@@ -26,7 +26,8 @@ if (fs.existsSync(ENV_FILE)) {
 export default defineConfig({
   testDir: './tests',
 
-  // Deletes old auth files so every run creates a fresh login (see src/fixtures/auth.fixture.ts).
+  // Deletes old auth files so every run creates a fresh login (see src/fixtures/auth.fixture.ts),
+  // and the previous run's allure-results, so the Allure report shows one run only.
   globalSetup: './src/global-setup.ts',
 
   // Tests are independent, so every test can run in parallel.
@@ -47,8 +48,9 @@ export default defineConfig({
   reporter: [
     ['list'],
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
-    // Optional Allure 3 report (npm run allure:generate / allure:open). Annotations are mapped to Allure
-    // labels by src/fixtures/allure.fixture.ts, so they are not repeated as "covers: …" steps.
+    // Raw results for the Allure 3 report. Viewing it is optional (npm run allure:generate / allure:open);
+    // the HTML report above never depends on it. Annotations are mapped to Allure labels by
+    // src/fixtures/allure.fixture.ts, so they are not repeated as "covers: …" steps.
     ['allure-playwright', { resultsDir: ALLURE_RESULTS_DIR, reportAnnotations: false }],
   ],
 
