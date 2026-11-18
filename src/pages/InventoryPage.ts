@@ -20,7 +20,10 @@ export class InventoryPage extends AppPage {
   readonly sortOptions: Locator;
   /** The visible label of the selected sort option. */
   readonly activeSortOption: Locator;
-  /** Every product's "Remove" button in the list; none while the cart is empty. */
+  /**
+   * Every "Remove" button rendered in the list. It reflects the rendered buttons, not the cart storage:
+   * after Reset App State the cart is empty but the buttons stay until a reload (spec 05 §6, D1).
+   */
   readonly removeButtons: Locator;
 
   constructor(page: Page) {

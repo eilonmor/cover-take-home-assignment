@@ -1,5 +1,6 @@
 import { test, expect, GUEST_STATE } from '@fixtures/index';
 import { PROTECTED_URLS, ROUTES, SESSION_STATES, routePattern, type ProtectedUrl, type SessionState } from '@data/routes';
+import { getUser } from '@data/users';
 import { runGroupedCases } from '@utils/grouped';
 import { getSessionCookie, removeSessionCookie, resetBrowserState } from '@utils/storage';
 
@@ -28,8 +29,11 @@ test.describe('Logout & Navigation', () => {
           await resetBrowserState(page);
 
           if (state === 'session cookie removed') {
-            // A real UI login, then only the session cookie is dropped (AC-NAV-12).
-            await loginPage.loginAs('standard');
+            // A real UI login, then only the session cookie is dropped (AC-NAV-12). resetBrowserState
+            // already opened the login page, so the form is submitted without loading it a second time.
+            await loginPage.waitForLoaded();
+            await loginPage.fillCredentials(getUser('standard'));
+            await loginPage.submit();
             await inventoryPage.waitForLoaded();
             // Hard guard: without a session to remove, this case would only repeat "never logged in".
             await expect

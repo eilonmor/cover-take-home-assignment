@@ -28,8 +28,15 @@ test.describe('Logout & Navigation', () => {
         // readCartIds returns [] for a missing key, so both "removed" and "[]" count as empty.
         await expect.soft.poll(async () => readCartIds(page), { message: 'cart storage after reset' }).toEqual([]);
         await expect.soft(page).toHaveURL(routePattern(ROUTES.inventory));
-        // D1 is a known site bug, never an acceptance criterion: the "Remove" buttons are not checked here.
-        test.info().annotations.push({ type: 'known-issue', description: D1_KNOWN_ISSUE });
+        // D1 is a known site bug, never an acceptance criterion: the "Remove" buttons are not asserted here,
+        // only read once. The annotation is recorded only while the defect shows, so it disappears once fixed.
+        const staleRemoveButtons = await inventoryPage.removeButtons.count();
+        if (staleRemoveButtons > 0) {
+          test.info().annotations.push({
+            type: 'known-issue',
+            description: `${D1_KNOWN_ISSUE} (${staleRemoveButtons} still shown before the reload).`,
+          });
+        }
       });
 
       await test.step('Reload: every button reads "Add to cart" and there is still no badge', async () => {
