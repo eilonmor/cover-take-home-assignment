@@ -3,9 +3,6 @@ import type { CheckoutInfo } from '../data/checkout';
 import { ROUTES, routePattern } from '../data/routes';
 import { AppPage } from './AppPage';
 
-/** Total budget for filling one input, retries included (see `fillField`). */
-const FILL_TIMEOUT = 5_000;
-
 /** Page object for checkout step one, "Your Information" (`/checkout-step-one.html`). */
 export class CheckoutInfoPage extends AppPage {
   /**
@@ -52,21 +49,25 @@ export class CheckoutInfoPage extends AppPage {
   }
 
   /**
-   * Fills one input and confirms it holds the value. Right after the cart -> step one swap the app
-   * itself calls blur() on the just-focused input (observed on WebKit, ~10 ms after focus). Playwright's
-   * fill() is focus -> insert text, so when that blur lands in between, the text is silently dropped
-   * and the field stays empty. The fill and its confirmation are therefore retried as one unit,
-   * which only ever repeats in that rare window (the blur happens once). The retry is bounded, so an
-   * input that never keeps its value (problem_user's last name, spec 04 §6) fails here fast and clearly.
+   * Fills one input, and fills it once more if the value did not stick.
+   *
+   * Right after the cart -> step one swap the app itself calls blur() on the just-focused input, once
+   * (observed on WebKit, ~1-10 ms after focus). Playwright's fill() is focus -> insert text, so when
+   * that blur lands in between, the text is dropped before fill() resolves and the field stays empty.
+   * One more fill() then succeeds, because the blur does not repeat.
+   *
+   * It never throws on a value that does not stick: an input that rejects input by design of a test
+   * user (problem_user's last name, spec 04 §6) is left as the site leaves it, so the spec asserts the
+   * outcome (e.g. the "Last Name is required" error) instead of the page object failing first.
    */
   private async fillField(input: Locator, value: string | undefined): Promise<void> {
     if (value === undefined) {
       return;
     }
-    await expect(async () => {
+    await input.fill(value);
+    if ((await input.inputValue()) !== value) {
       await input.fill(value);
-      await expect(input).toHaveValue(value, { timeout: 1_000 });
-    }).toPass({ timeout: FILL_TIMEOUT });
+    }
   }
 
   /** Clicks Continue without waiting for a navigation (validation may keep the page). */
