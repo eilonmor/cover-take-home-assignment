@@ -5,6 +5,13 @@ import { AppPage } from './AppPage';
 
 /** Page object for checkout step one, "Your Information" (`/checkout-step-one.html`). */
 export class CheckoutInfoPage extends AppPage {
+  /**
+   * Class pattern of an input in the red error state. It matches the exact `error` class token
+   * only: the `input_error` class is always on the inputs, with or without an error, so it is not
+   * a signal (observed live).
+   */
+  readonly inputErrorClass = /(?:^|\s)error(?:\s|$)/;
+
   readonly path = ROUTES.checkoutInfo;
 
   readonly firstName: Locator;
