@@ -93,6 +93,7 @@ The HTML report never depends on Allure.
 ```
 .
 ├── .claude/agents/          Playwright Test Agents definitions (planner, generator, healer)
+├── .github/workflows/       CI workflow (typecheck + tests per browser)
 ├── docs/ROADMAP.md          Implementation plan, conventions and per-phase status
 ├── specs/                   Behavior specs per area: user stories, ACs, UI contract, defects
 ├── src/
@@ -188,6 +189,16 @@ The project was built with the official Playwright Test Agents, set up once with
 | [dotenv](https://github.com/motdotla/dotenv) | Loads `.env` / `.env.example` |
 | [Allure Report 3](https://allurereport.org/) + `allure-playwright` | Optional rich report with labels by area, AC and known issue |
 | Playwright Test Agents + MCP | Spec planning, test generation and healing |
+| GitHub Actions | CI: typecheck + one test job per browser, with report artifacts |
+
+## Continuous integration
+
+[`.github/workflows/playwright.yml`](.github/workflows/playwright.yml) runs on every push to `main` and on every pull request to `main`:
+
+- **Typecheck:** `npm ci --ignore-scripts` → `npm run typecheck`.
+- **Tests:** one job per browser (`chromium`, `firefox`, `webkit`), with `fail-fast: false`, so one browser's failure never hides the others. Each job installs only its own browser (`npx playwright install --with-deps <browser>`), then runs `npx playwright test --project=<browser>`. On CI, Playwright uses 2 workers and `forbidOnly`.
+- **Artifacts:** each browser job uploads `playwright-report-<browser>` and `allure-results-<browser>`, even when tests fail, and keeps them for 14 days. Download one from the run's summary page and open it with `npx playwright show-report <folder>` or `npx allure open <folder>`.
+- **No secrets:** CI has no `.env`, so it uses the public demo values from `.env.example`.
 
 ## Troubleshooting
 
