@@ -6,6 +6,7 @@ The suite has **30 tests**: 6 per area, for Login, Products, Cart, Checkout, and
 
 - **What is tested, and why:** [`TEST_PLAN.md`](TEST_PLAN.md) (test-case table, scope, risks, results).
 - **Behavior specs**, with user stories and acceptance criteria per area: [`specs/`](specs/README.md).
+- **Latest CI reports** for `main`: [Playwright](https://eilonmor.github.io/cover-take-home-assignment/) and [Allure](https://eilonmor.github.io/cover-take-home-assignment/allure/).
 - **How the project was built**, phase by phase: [`docs/ROADMAP.md`](docs/ROADMAP.md).
 
 ## Prerequisites
@@ -93,7 +94,7 @@ The HTML report never depends on Allure.
 ```
 .
 ├── .claude/agents/          Playwright Test Agents definitions (planner, generator, healer)
-├── .github/workflows/       CI workflow (typecheck + tests per browser)
+├── .github/workflows/       CI workflow (typecheck, tests per browser, merged reports to Pages)
 ├── docs/ROADMAP.md          Implementation plan, conventions and per-phase status
 ├── specs/                   Behavior specs per area: user stories, ACs, UI contract, defects
 ├── src/
@@ -189,15 +190,16 @@ The project was built with the official Playwright Test Agents, set up once with
 | [dotenv](https://github.com/motdotla/dotenv) | Loads `.env` / `.env.example` |
 | [Allure Report 3](https://allurereport.org/) + `allure-playwright` | Optional rich report with labels by area, AC and known issue |
 | Playwright Test Agents + MCP | Spec planning, test generation and healing |
-| GitHub Actions | CI: typecheck + one test job per browser, with report artifacts |
+| GitHub Actions + Pages | CI: typecheck, one test job per browser, merged reports published to GitHub Pages |
 
 ## Continuous integration
 
 [`.github/workflows/playwright.yml`](.github/workflows/playwright.yml) runs on every push to `main` and on every pull request to `main`:
 
 - **Typecheck:** `npm ci --ignore-scripts` → `npm run typecheck`.
-- **Tests:** one job per browser (`chromium`, `firefox`, `webkit`), with `fail-fast: false`, so one browser's failure never hides the others. Each job installs only its own browser (`npx playwright install --with-deps <browser>`), then runs `npx playwright test --project=<browser>`. On CI, Playwright uses 2 workers and `forbidOnly`.
-- **Artifacts:** each browser job uploads `playwright-report-<browser>` and `allure-results-<browser>`, even when tests fail, and keeps them for 14 days. Download one from the run's summary page and open it with `npx playwright show-report <folder>` or `npx allure open <folder>`.
+- **Tests:** one job per browser (`chromium`, `firefox`, `webkit`), with `fail-fast: false`, so one browser's failure never hides the others. Each job installs only its own browser (`npx playwright install --with-deps <browser>`), then runs `npx playwright test --project=<browser>`. On CI, Playwright uses 2 workers, `forbidOnly` and an extra `blob` reporter, whose file is named per browser.
+- **Report:** runs after the three test jobs, even when tests failed. It merges their blob reports into one Playwright HTML report (`npx playwright merge-reports`) and their Allure results into one Allure report. It uploads both as the `reports` artifact (14 days): the Playwright report at the root, the Allure report under `allure/`. To open a downloaded copy, unzip it and run `npx playwright show-report <folder>`.
+- **Deploy (pushes to `main` only):** publishes the same reports to GitHub Pages: [Playwright report](https://eilonmor.github.io/cover-take-home-assignment/) and [Allure report](https://eilonmor.github.io/cover-take-home-assignment/allure/). Pull requests don't deploy, so the published report always shows `main`. A one-time repo setting is needed: **Settings → Pages → Source: GitHub Actions**.
 - **No secrets:** CI has no `.env`, so it uses the public demo values from `.env.example`.
 
 ## Troubleshooting

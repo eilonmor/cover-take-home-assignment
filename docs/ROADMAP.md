@@ -698,8 +698,10 @@ Phase 5 (Logout & Navigation tests) of docs/ROADMAP.md. Windows machine.
   - Job `typecheck`: `npm ci --ignore-scripts` → `npm run typecheck`.
   - Job `test`: a matrix of `chromium`, `firefox` and `webkit`, with `fail-fast: false`, Node LTS and npm cache.
     - Steps: `npm ci --ignore-scripts` → `npx playwright install --with-deps ${{ matrix.project }}` → `npx playwright test --project=${{ matrix.project }}`. `CI=true` gives 2 workers and `forbidOnly`; `.env` falls back per 6.1.
-    - `actions/upload-artifact` uploads `playwright-report/` and `allure-results/` for each project, with `if: always()` and 14-day retention.
-  - The report is a downloadable bonus. Reviewers still run the tests locally.
+    - `actions/upload-artifact` uploads a blob report (`report-<project>.zip`) and `allure-results/` for each project, unless the run was cancelled.
+  - Job `report` (follow-up from the PR review): merges the blob reports into one Playwright HTML report and the Allure results into one Allure report, even when tests failed, and uploads both as the `reports` artifact (14 days).
+  - Job `deploy`, on pushes to `main` only: publishes `reports` to GitHub Pages (Playwright at the root, Allure under `allure/`). It needs Settings → Pages → Source: GitHub Actions.
+  - The published report is a bonus. Reviewers still run the tests locally.
   → `ci: add GitHub Actions Playwright workflow`
 - [x] **6.6 Final run.**
   - Run `npm run typecheck`, `npm test` (3 browsers), `npm run test:smoke`, `npm run test:regression`, then `npm run report` and `npm run allure:generate`.

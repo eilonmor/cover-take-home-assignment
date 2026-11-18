@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, type ReporterDescription } from '@playwright/test';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
@@ -52,6 +52,9 @@ export default defineConfig({
     // the HTML report above never depends on it. Annotations are mapped to Allure labels by
     // src/fixtures/allure.fixture.ts, so they are not repeated as "covers: …" steps.
     ['allure-playwright', { resultsDir: ALLURE_RESULTS_DIR, reportAnnotations: false }],
+    // CI only: each browser job also writes a blob report (blob-report/report-<browser>.zip, named by
+    // PLAYWRIGHT_BLOB_OUTPUT_NAME in the workflow), which the report job merges into one HTML report.
+    ...(process.env.CI ? [['blob'] as ReporterDescription] : []),
   ],
 
   use: {
