@@ -22,11 +22,17 @@ test.describe('Cart', () => {
         // Hard guard: /cart.html and the cart page rendered, so rows are read from the cart DOM.
         await inventoryPage.header.openCart();
         await cartPage.waitForLoaded();
-        await expect.soft(cartPage.title).toHaveText(PAGE_TITLES.cart);
-        await expect.soft(cartPage.quantityLabel).toHaveText(CART_TEXT.quantityLabel);
-        await expect.soft(cartPage.descriptionLabel).toHaveText(CART_TEXT.descriptionLabel);
-        await expect.soft(cartPage.continueShoppingButton).toHaveText(CART_TEXT.continueShopping);
-        await expect.soft(cartPage.checkoutButton).toHaveText(CART_TEXT.checkout);
+        // toHaveText also passes on hidden elements, so visibility is asserted on its own (AC-CART-04).
+        for (const [locator, text] of [
+          [cartPage.title, PAGE_TITLES.cart],
+          [cartPage.quantityLabel, CART_TEXT.quantityLabel],
+          [cartPage.descriptionLabel, CART_TEXT.descriptionLabel],
+          [cartPage.continueShoppingButton, CART_TEXT.continueShopping],
+          [cartPage.checkoutButton, CART_TEXT.checkout],
+        ] as const) {
+          await expect.soft(locator).toBeVisible();
+          await expect.soft(locator).toHaveText(text);
+        }
       });
 
       await test.step('One row per product, in add order, with catalog data and quantity 1', async () => {

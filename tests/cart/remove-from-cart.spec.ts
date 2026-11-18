@@ -48,10 +48,16 @@ test.describe('Cart', () => {
         await cartPage.remove(...REMAINING);
         await expect.soft(cartPage.list.items).toHaveCount(0);
         await expect.soft(cartPage.header).toHaveCartBadge(0);
-        await expect.soft(cartPage.quantityLabel).toHaveText(CART_TEXT.quantityLabel);
-        await expect.soft(cartPage.descriptionLabel).toHaveText(CART_TEXT.descriptionLabel);
-        await expect.soft(cartPage.continueShoppingButton).toHaveText(CART_TEXT.continueShopping);
-        await expect.soft(cartPage.checkoutButton).toHaveText(CART_TEXT.checkout);
+        // toHaveText also passes on hidden elements, so visibility is asserted on its own (AC-CART-09).
+        for (const [locator, text] of [
+          [cartPage.quantityLabel, CART_TEXT.quantityLabel],
+          [cartPage.descriptionLabel, CART_TEXT.descriptionLabel],
+          [cartPage.continueShoppingButton, CART_TEXT.continueShopping],
+          [cartPage.checkoutButton, CART_TEXT.checkout],
+        ] as const) {
+          await expect.soft(locator).toBeVisible();
+          await expect.soft(locator).toHaveText(text);
+        }
       });
     },
   );
