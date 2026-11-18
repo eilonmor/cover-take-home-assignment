@@ -538,7 +538,7 @@ Spec: [`specs/04-checkout.md`](../specs/04-checkout.md). Folder: `tests/checkout
   - Each validation state is a `test.step`, with soft text checks and a hard URL check.
   → `test(checkout): add TC-CHK-02 step one validation`
 - [ ] **4.3 TC-CHK-03 Tax and total are correct for every cart combination.** `tests/checkout/tax-and-total.spec.ts`. Tags `@regression`. Covers AC-CHK-11, 12, 13. **Grouped** over `CHECKOUT_CARTS` (10 cases); the runner sizes the timeout, so no `test.slow()`.
-  - Each case: `inventoryPage.goto()` → `clearCart(page)` → `inventoryPage.goto()` → soft `toHaveCartBadge(0)` → `shop.reachOverview(items)`.
+  - Each case: `inventoryPage.goto()` → `clearCart(page)` → `inventoryPage.goto()` → hard `toHaveCartBadge(0)` (isolation guard: never run on a leftover cart) → `shop.reachOverview(items)`.
   - Soft checks:
     - the 3 labels equal the row's observed strings;
     - **and** independently, `toHaveOrderSummary(summarize(items.map(priceCents)))`.

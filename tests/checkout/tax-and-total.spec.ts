@@ -20,7 +20,9 @@ test.describe('Checkout', () => {
           await inventoryPage.goto();
           await clearCart(page);
           await inventoryPage.goto();
-          await expect.soft(inventoryPage.header).toHaveCartBadge(0);
+          // Hard isolation guard: a case never runs on the previous case's cart, so a failed reset stops
+          // this case with a clear "badge" error instead of misleading amount errors.
+          await expect(inventoryPage.header).toHaveCartBadge(0);
 
           // Hard guard: reachOverview waits for /checkout-step-two.html and the Finish button.
           await shop.reachOverview(cart.items);
