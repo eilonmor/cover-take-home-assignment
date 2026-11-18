@@ -35,10 +35,8 @@ test.describe('Cart', () => {
         await cartPage.continueShopping();
         await inventoryPage.waitForLoaded();
         await expect.soft(inventoryPage.addButton(REMOVED_FIRST)).toBeVisible();
-        await expect.soft(inventoryPage.removeButton(REMOVED_FIRST)).toHaveCount(0);
         for (const key of REMAINING) {
           await expect.soft(inventoryPage.removeButton(key)).toBeVisible();
-          await expect.soft(inventoryPage.addButton(key)).toHaveCount(0);
         }
       });
 
@@ -48,7 +46,8 @@ test.describe('Cart', () => {
         await cartPage.remove(...REMAINING);
         await expect.soft(cartPage.list.items).toHaveCount(0);
         await expect.soft(cartPage.header).toHaveCartBadge(0);
-        // toHaveText also passes on hidden elements, so visibility is asserted on its own (AC-CART-09).
+        // Scenario 1.3 step 4: the headers and buttons stay on the empty cart. toHaveText also passes
+        // on hidden elements, so visibility is asserted on its own.
         for (const [locator, text] of [
           [cartPage.quantityLabel, CART_TEXT.quantityLabel],
           [cartPage.descriptionLabel, CART_TEXT.descriptionLabel],

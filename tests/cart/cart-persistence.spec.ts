@@ -30,10 +30,9 @@ test.describe('Cart', () => {
         await cartPage.continueShopping();
         await inventoryPage.waitForLoaded();
         await expect.soft(inventoryPage.header).toHaveCartBadge(ADDED.length);
-        // Only the cart's own products: the toggle for the other products is PROD's (TC-PROD-06).
+        // Only what AC-CART-10 needs; the add/remove toggle itself is PROD's (TC-PROD-06).
         for (const key of ADDED) {
           await expect.soft(inventoryPage.removeButton(key)).toBeVisible();
-          await expect.soft(inventoryPage.addButton(key)).toHaveCount(0);
         }
       });
 

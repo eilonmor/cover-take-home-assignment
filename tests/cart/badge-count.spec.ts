@@ -1,8 +1,10 @@
 import { test, expect } from '@fixtures/index';
-import { CATALOG_AZ, PRODUCTS } from '@data/products';
+import { PRODUCTS, type ProductKey } from '@data/products';
 
 // Spec: specs/03-cart.md, scenario 1.1. Authenticated (default): starts logged in as standard_user, empty cart.
-// The spec's add order (backpack, bike light, bolt t-shirt, fleece jacket, onesie, red t-shirt) is the catalog A-Z order.
+
+/** The add order of spec scenario 1.1, step 3. */
+const ADD_ORDER: readonly ProductKey[] = ['backpack', 'bikeLight', 'boltTShirt', 'fleeceJacket', 'onesie', 'redTShirt'];
 
 test.describe('Cart', () => {
   test(
@@ -14,7 +16,7 @@ test.describe('Cart', () => {
         await expect.soft(inventoryPage.header).toHaveCartBadge(0);
       });
 
-      for (const [index, key] of CATALOG_AZ.entries()) {
+      for (const [index, key] of ADD_ORDER.entries()) {
         await test.step(`Add ${PRODUCTS[key].name}: the badge shows ${index + 1}`, async () => {
           // addToCart waits for the button to toggle, so a failed add fails here with its cause.
           await inventoryPage.addToCart(key);
@@ -26,7 +28,7 @@ test.describe('Cart', () => {
         // Hard guard: /cart.html and the cart page rendered.
         await inventoryPage.header.openCart();
         await cartPage.waitForLoaded();
-        await expect.soft(cartPage.header).toHaveCartBadge(CATALOG_AZ.length);
+        await expect.soft(cartPage.header).toHaveCartBadge(ADD_ORDER.length);
       });
     },
   );
