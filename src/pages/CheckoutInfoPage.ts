@@ -5,6 +5,13 @@ import { AppPage } from './AppPage';
 
 /** Page object for checkout step one, "Your Information" (`/checkout-step-one.html`). */
 export class CheckoutInfoPage extends AppPage {
+  /**
+   * Class pattern of an input in the red error state. It matches the exact `error` class token
+   * only: the `input_error` class is always on the inputs, with or without an error, so it is not
+   * a signal (observed live).
+   */
+  readonly inputErrorClass = /(?:^|\s)error(?:\s|$)/;
+
   readonly path = ROUTES.checkoutInfo;
 
   readonly firstName: Locator;
@@ -36,14 +43,30 @@ export class CheckoutInfoPage extends AppPage {
 
   /** Fills each given field; an empty string clears it, a missing one is left untouched. */
   async fill(info: Partial<CheckoutInfo>): Promise<void> {
-    if (info.firstName !== undefined) {
-      await this.firstName.fill(info.firstName);
+    await this.fillField(this.firstName, info.firstName);
+    await this.fillField(this.lastName, info.lastName);
+    await this.fillField(this.postalCode, info.postalCode);
+  }
+
+  /**
+   * Fills one input, and fills it once more if the value did not stick.
+   *
+   * Right after the cart -> step one swap the app itself calls blur() on the just-focused input, once
+   * (observed on WebKit, ~1-10 ms after focus). Playwright's fill() is focus -> insert text, so when
+   * that blur lands in between, the text is dropped before fill() resolves and the field stays empty.
+   * One more fill() then succeeds, because the blur does not repeat.
+   *
+   * It never throws on a value that does not stick: an input that rejects input by design of a test
+   * user (problem_user's last name, spec 04 §6) is left as the site leaves it, so the spec asserts the
+   * outcome (e.g. the "Last Name is required" error) instead of the page object failing first.
+   */
+  private async fillField(input: Locator, value: string | undefined): Promise<void> {
+    if (value === undefined) {
+      return;
     }
-    if (info.lastName !== undefined) {
-      await this.lastName.fill(info.lastName);
-    }
-    if (info.postalCode !== undefined) {
-      await this.postalCode.fill(info.postalCode);
+    await input.fill(value);
+    if ((await input.inputValue()) !== value) {
+      await input.fill(value);
     }
   }
 

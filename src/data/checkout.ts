@@ -46,3 +46,29 @@ export const CHECKOUT_CARTS: readonly CheckoutCartCase[] = [
     'all six items',
   ),
 ];
+
+/**
+ * The cart case with exactly these items, in this add order. Throws if CHECKOUT_CARTS has none (a data error).
+ * Lets a single-cart spec reuse the observed values of TC-CHK-03 instead of repeating them.
+ */
+export function checkoutCart(items: readonly ProductKey[]): CheckoutCartCase {
+  const found = CHECKOUT_CARTS.find(
+    (candidate) => candidate.items.length === items.length && candidate.items.every((key, i) => key === items[i]),
+  );
+  if (found === undefined) {
+    throw new Error(`No CHECKOUT_CARTS case for [${items.join(', ')}].`);
+  }
+  return found;
+}
+
+/**
+ * The exact summary label texts observed live for a cart, e.g. "Item total: $39.98".
+ * Built from the table's strings, independently of the cents math in `summaryLabels`.
+ */
+export function observedLabels({ expected }: CheckoutCartCase): { subtotal: string; tax: string; total: string } {
+  return {
+    subtotal: `Item total: ${expected.itemTotal}`,
+    tax: `Tax: ${expected.tax}`,
+    total: `Total: ${expected.total}`,
+  };
+}

@@ -63,7 +63,7 @@ Validation order (first failing field wins, one message at a time): 1) First Nam
 
 Step two data-test IDs: `inventory-item` (per row), `item-quantity`, `inventory-item-name`, `inventory-item-desc`, `inventory-item-price`, `payment-info-label` ("Payment Information:"), `payment-info-value` ("SauceCard #31337"), `shipping-info-label` ("Shipping Information:"), `shipping-info-value` ("Free Pony Express Delivery!"), `total-info-label` ("Price Total"), `subtotal-label`, `tax-label`, `total-label`, `cancel`, `finish`. Cart badge: `shopping-cart-badge`. The payment and shipping texts are static and identical for all carts.
 
-Label formats: `subtotal-label` = "Item total: $" + sum (no thousands separator; observed 2 decimals, e.g. "Item total: $39.98"); `tax-label` = "Tax: $" + tax (2 decimals); `total-label` = "Total: $" + total (2 decimals).
+Label formats: `subtotal-label` = "Item total: $" + sum (no thousands separator; intended 2 decimals, e.g. "Item total: $39.98"; DEF-CHK-SUBTOTAL: some sums are shown unrounded, see section 5); `tax-label` = "Tax: $" + tax (2 decimals); `total-label` = "Total: $" + total (2 decimals).
 
 Tax rule: tax = 8% of the item total, rounded to 2 decimals; total = item total + tax. Shipping is free and adds nothing. Note on rounding: all catalog prices end in .99/.98 sums so that 8% of any possible cart has a third-decimal remainder of 50 or more of a cent. Therefore round-half-up and always-round-up (ceiling) are indistinguishable with the current catalog; the spec states "round to nearest cent". Do not assert on banker's rounding.
 
@@ -94,6 +94,7 @@ Complete page IDs: `title`, `pony-express` (img, alt "Pony Express"), `complete-
 - Whitespace-only in all fields: observed accepted, goes to step two (DEF vs AC-CHK-06). Also leading/trailing spaces and special characters (e.g. "O'Brien", "12345-6789", emoji) are accepted without validation; there is no max length enforcement observed.
 - After an error, correcting the field and clicking Continue proceeds to step two and the error is gone.
 - Step one can be opened directly with an empty cart (observed: form shown; Continue goes to step two). Intended: redirect to cart, same family as DEF-CART.
+- DEF-CHK-SUBTOTAL (found 2026-11-18 while automating TC-CHK-04): the item total is the floating-point sum of the prices, not rounded to 2 decimals. Fleece jacket + onesie shows "Item total: $57.980000000000004" instead of "Item total: $57.98" (deviation from AC-CHK-11). Tax ($4.64) and total ($62.62) are correct. The 10 carts of TC-CHK-03 are not affected. TC-CHK-04 checks the amount to the cent, tolerates only the float noise, and records a known issue while the defect shows.
 - Step two with an empty cart: shows "Item total: $0", "Tax: $0.00", "Total: $0.00"; Finish succeeds (DEF, AC-CHK-18).
 - Direct /checkout-complete.html with an empty cart or without finishing: confirmation is shown (DEF, AC-CHK-19). This is a session-authenticated user; unauthenticated access belongs to the protected-route spec.
 - Reloading the complete page keeps showing it; browser Back from complete returns to step two (observed: cart is empty then). Intended: Finish cannot be repeated on an empty cart (same defect family).

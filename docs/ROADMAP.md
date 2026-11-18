@@ -11,8 +11,8 @@ Each phase runs in its own session, on its own branch from an up-to-date `main`,
 | 0. Foundation | `feat/foundation` | [#2](https://github.com/eilonmor/cover-take-home-assignment/pull/2) | Merged |
 | 1. Login tests | `feat/tests-login` | [#3](https://github.com/eilonmor/cover-take-home-assignment/pull/3) | Merged |
 | 2. Products tests | `feat/tests-products` | [#4](https://github.com/eilonmor/cover-take-home-assignment/pull/4) | Merged |
-| 3. Cart tests | `feat/tests-cart` | | In review |
-| 4. Checkout tests | `feat/tests-checkout` | | Not started |
+| 3. Cart tests | `feat/tests-cart` | [#5](https://github.com/eilonmor/cover-take-home-assignment/pull/5) | Merged |
+| 4. Checkout tests | `feat/tests-checkout` | | In review |
 | 5. Navigation tests | `feat/tests-navigation` | | Not started |
 | 6. Docs & delivery | `docs/delivery` | | Not started |
 
@@ -523,13 +523,13 @@ Phase 3 (Cart tests) of docs/ROADMAP.md. Windows machine.
 Spec: [`specs/04-checkout.md`](../specs/04-checkout.md). Folder: `tests/checkout/`. **Mode:** authenticated (default). Describe: `Checkout`.
 
 ### Tasks
-- [ ] **4.1 TC-CHK-01 End-to-end happy path with two items.** `tests/checkout/happy-path.spec.ts`. Tags `@smoke`. Covers AC-CHK-01, 07, 09–13, 15.
+- [x] **4.1 TC-CHK-01 End-to-end happy path with two items.** `tests/checkout/happy-path.spec.ts`. Tags `@smoke`. Covers AC-CHK-01, 07, 09–13, 15.
   - `shop.startCheckout(['backpack','bikeLight'])` → step one: title, 3 empty inputs, error 0.
   - `submit(CUSTOMER)` → step two: title, `toShowProducts`, quantities `['1','1']`.
   - `toHaveOrderSummary(summarize([...prices]))`, and the exact labels `Item total: $39.98` / `Tax: $3.20` / `Total: $43.18` (from `summaryLabels`).
   - `finish()` → complete: title, header, text and pony image from `CHECKOUT_TEXT`; badge 0.
   → `test(checkout): add TC-CHK-01 happy path`
-- [ ] **4.2 TC-CHK-02 Step one required-field validation order, texts and dismiss.** `tests/checkout/step-one-validation.spec.ts`. Tags `@smoke @regression`. Covers AC-CHK-02..05.
+- [x] **4.2 TC-CHK-02 Step one required-field validation order, texts and dismiss.** `tests/checkout/step-one-validation.spec.ts`. Tags `@smoke @regression`. Covers AC-CHK-02..05.
   - `startCheckout(['backpack'])`.
   - Continue with empty fields → the URL is unchanged, `CHECKOUT_ERRORS.firstName`.
   - Fill first → `lastName` error. Fill last → `postalCode` error.
@@ -537,36 +537,36 @@ Spec: [`specs/04-checkout.md`](../specs/04-checkout.md). Folder: `tests/checkout
   - Clear first + fill postal → the `firstName` error again.
   - Each validation state is a `test.step`, with soft text checks and a hard URL check.
   → `test(checkout): add TC-CHK-02 step one validation`
-- [ ] **4.3 TC-CHK-03 Tax and total are correct for every cart combination.** `tests/checkout/tax-and-total.spec.ts`. Tags `@regression`. Covers AC-CHK-11, 12, 13. **Grouped** over `CHECKOUT_CARTS` (10 cases); the runner sizes the timeout, so no `test.slow()`.
-  - Each case: `inventoryPage.goto()` → `clearCart(page)` → `inventoryPage.goto()` → soft `toHaveCartBadge(0)` → `shop.reachOverview(items)`.
+- [x] **4.3 TC-CHK-03 Tax and total are correct for every cart combination.** `tests/checkout/tax-and-total.spec.ts`. Tags `@regression`. Covers AC-CHK-11, 12, 13. **Grouped** over `CHECKOUT_CARTS` (10 cases); the runner sizes the timeout, so no `test.slow()`.
+  - Each case: `inventoryPage.goto()` → `clearCart(page)` → `inventoryPage.goto()` → hard `toHaveCartBadge(0)` (isolation guard: never run on a leftover cart) → `shop.reachOverview(items)`.
   - Soft checks:
     - the 3 labels equal the row's observed strings;
     - **and** independently, `toHaveOrderSummary(summarize(items.map(priceCents)))`.
   → `test(checkout): add TC-CHK-03 grouped tax and total`
-- [ ] **4.4 TC-CHK-04 Overview item list and static info match the cart.** `tests/checkout/overview-content.spec.ts`. Tags `@regression`. Covers AC-CHK-09, 10.
+- [x] **4.4 TC-CHK-04 Overview item list and static info match the cart.** `tests/checkout/overview-content.spec.ts`. Tags `@regression`. Covers AC-CHK-09, 10.
   - `reachOverview(['fleeceJacket','onesie'])` → badge 2.
   - `toShowProducts` in add order; quantities 1.
   - The payment and shipping labels and values and the "Price Total" header come from `CHECKOUT_TEXT`.
   - The summary is 57.98 / 4.64 / 62.62 (`summarize`); the cancel and finish buttons are visible.
   → `test(checkout): add TC-CHK-04 overview content`
-- [ ] **4.5 TC-CHK-05 Cancel on step one and step two keeps the cart.** `tests/checkout/cancel.spec.ts`. Tags `@regression`. Covers AC-CHK-08, 14.
+- [x] **4.5 TC-CHK-05 Cancel on step one and step two keeps the cart.** `tests/checkout/cancel.spec.ts`. Tags `@regression`. Covers AC-CHK-08, 14.
   - `startCheckout(['backpack','bikeLight'])` → `cancel()` → `/cart.html`, 2 rows, badge 2.
   - `checkout()` → `submit(CUSTOMER)` → overview `cancel()` → `/inventory.html` (not the cart), badge 2, both remove buttons visible.
   - `openCart()` → 2 rows.
   → `test(checkout): add TC-CHK-05 cancel keeps cart`
-- [ ] **4.6 TC-CHK-06 Complete page, cart emptied and Back Home.** `tests/checkout/complete-and-back-home.spec.ts`. Tags `@smoke`. Covers AC-CHK-15, 16, 17.
+- [x] **4.6 TC-CHK-06 Complete page, cart emptied and Back Home.** `tests/checkout/complete-and-back-home.spec.ts`. Tags `@smoke`. Covers AC-CHK-15, 16, 17.
   - `shop.placeOrder(['onesie'])` → complete-page texts; pony image alt "Pony Express"; back button "Back Home"; badge 0.
   - `backHome()` → `/inventory.html`, badge 0, the onesie add button is visible.
   - `openCart()` → 0 rows.
   → `test(checkout): add TC-CHK-06 complete page and back home`
 
-Known issues: none in the Selected set. The whitespace-input, direct-complete and empty step-two defects are Backlog (TC-CHK-07/08/09) and go into the TEST_PLAN risks.
+Known issues: DEF-CHK-SUBTOTAL, found while automating TC-CHK-04 (spec 04 §5): fleece jacket + onesie shows "Item total: $57.980000000000004", an unrounded float sum. TC-CHK-04 checks the amount to the cent, tolerates only the float noise (`withFloatNoise`), and adds a `known-issue` annotation while the defect shows. The whitespace-input, direct-complete and empty step-two defects are Backlog (TC-CHK-07/08/09). All of these go into the TEST_PLAN risks.
 
 ### Review checklist (phase-specific)
-- [ ] All money is compared through `src/utils/money.ts` in integer cents, plus the exact label strings. No `parseFloat` in specs.
-- [ ] TC-CHK-03 asserts both the observed table and the rule, independently, each with `expect.soft`.
-- [ ] The customer data comes from `CUSTOMER`, and the checkout texts come from `CHECKOUT_TEXT` / `CHECKOUT_ERRORS`.
-- [ ] Cart reset per grouped case goes only through `clearCart`, with no leftovers between cases.
+- [x] All money is compared through `src/utils/money.ts` in integer cents, plus the exact label strings. No `parseFloat` in specs.
+- [x] TC-CHK-03 asserts both the observed table and the rule, independently, each with `expect.soft`.
+- [x] The customer data comes from `CUSTOMER`, and the checkout texts come from `CHECKOUT_TEXT` / `CHECKOUT_ERRORS`.
+- [x] Cart reset per grouped case goes only through `clearCart`, with no leftovers between cases.
 
 ### Execution prompt
 ```text

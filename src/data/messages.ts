@@ -28,6 +28,14 @@ export const CHECKOUT_ERRORS = {
   postalCode: 'Error: Postal Code is required',
 } as const;
 
+/** Placeholders and the Continue label of the checkout step one form (spec 04 §4, AC-CHK-01). */
+export const CHECKOUT_FORM = {
+  firstNamePlaceholder: 'First Name',
+  lastNamePlaceholder: 'Last Name',
+  postalCodePlaceholder: 'Zip/Postal Code',
+  continueLabel: 'Continue',
+} as const;
+
 /** The `title` data-test text of each logged-in page. */
 export const PAGE_TITLES = {
   inventory: 'Products',
@@ -62,6 +70,9 @@ export const CHECKOUT_TEXT = {
   completeHeader: 'Thank you for your order!',
   completeText: 'Your order has been dispatched, and will arrive just as fast as the pony can get there!',
   backHome: 'Back Home',
+  /** The Cancel button on step one and step two. */
+  cancel: 'Cancel',
+  finish: 'Finish',
   ponyAlt: 'Pony Express',
 } as const;
 

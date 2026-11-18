@@ -3,6 +3,8 @@
  * Serves TC-CHK-01/03/04 and the `toHaveOrderSummary` matcher.
  */
 
+import { escapeRegExp } from './regexp';
+
 /** An amount of money in integer cents (branded, so a plain number can't be passed by mistake). */
 export type Cents = number & { readonly __brand: 'Cents' };
 
@@ -61,6 +63,15 @@ export function summarize(prices: readonly Cents[]): OrderSummary {
   const itemTotal = cents(prices.reduce<number>((sum, price) => sum + price, 0));
   const tax = taxFor(itemTotal);
   return { itemTotal, tax, total: cents(itemTotal + tax) };
+}
+
+/**
+ * Matches `label` exactly, or `label` followed only by floating-point noise (5+ zeros, then digits), as in
+ * "Item total: $57.980000000000004". For a known rounding defect (spec 04 §5, DEF-CHK-SUBTOTAL): the amount
+ * must still be right to the cent, and any other suffix (a 3rd real decimal, "$57.989", text) fails.
+ */
+export function withFloatNoise(label: string): RegExp {
+  return new RegExp(`^${escapeRegExp(label)}(?:0{5,}\\d+)?$`);
 }
 
 /** The exact label texts the overview shows for a summary: "Item total: $..", "Tax: $..", "Total: $..". */
