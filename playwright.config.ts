@@ -1,9 +1,21 @@
 import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
+import fs from 'fs';
 import path from 'path';
 
-// Load environment variables from .env (see .env.example).
-dotenv.config({ path: path.resolve(__dirname, '.env'), quiet: true });
+// Load environment variables from .env. Without one, fall back to .env.example, which holds only the
+// public demo values, so a fresh clone runs in three steps: clone → install → test.
+// Variables already set in the shell (e.g. in CI) win over both files: dotenv never overrides them.
+const ENV_FILE = path.resolve(__dirname, '.env');
+if (fs.existsSync(ENV_FILE)) {
+  dotenv.config({ path: ENV_FILE, quiet: true });
+} else {
+  dotenv.config({ path: path.resolve(__dirname, '.env.example'), quiet: true });
+  // The runner and every worker load this config; print the notice once, from the runner only.
+  if (process.env.TEST_WORKER_INDEX === undefined) {
+    console.log('No .env file found: using the public demo values from .env.example (copy it to .env to override).');
+  }
+}
 
 /**
  * Playwright configuration.
