@@ -5,6 +5,12 @@ import { BasePage } from './BasePage';
 
 /** Page object for the login page (`/`). */
 export class LoginPage extends BasePage {
+  /**
+   * Class pattern of an input in the red error state. It matches the `error` class only: the
+   * `input_error` class stays on the inputs after the error is dismissed, so it is not a signal.
+   */
+  readonly inputErrorClass = /\berror\b/;
+
   readonly path = ROUTES.login;
 
   readonly usernameInput: Locator;

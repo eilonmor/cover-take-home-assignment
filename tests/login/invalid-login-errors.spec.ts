@@ -6,9 +6,6 @@ import { runGroupedCases } from '@utils/grouped';
 // Spec: specs/01-login.md, scenario 1.2. Grouped: one isolated step per row of invalidLoginCases().
 test.use({ storageState: GUEST_STATE });
 
-/** The red error state: the `error` class itself, not `input_error`, which stays after a dismiss. */
-const ERROR_CLASS = /\berror\b/;
-
 test.describe('Login', () => {
   test(
     'TC-LOGIN-02 Invalid login attempts display the correct error message',
@@ -34,8 +31,8 @@ test.describe('Login', () => {
           await expect.soft(loginPage.errorMessage).toHaveText(expectedError);
           await expect.soft(loginPage.page).toHaveURL(routePattern(ROUTES.login));
           await expect.soft(loginPage.errorButton).toBeVisible();
-          await expect.soft(loginPage.usernameInput).toHaveClass(ERROR_CLASS);
-          await expect.soft(loginPage.passwordInput).toHaveClass(ERROR_CLASS);
+          await expect.soft(loginPage.usernameInput).toHaveClass(loginPage.inputErrorClass);
+          await expect.soft(loginPage.passwordInput).toHaveClass(loginPage.inputErrorClass);
           await expect.soft(loginPage.inputErrorIcons).toHaveCount(2);
         },
       });
