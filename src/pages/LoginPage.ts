@@ -50,6 +50,11 @@ export class LoginPage extends BasePage {
     }
   }
 
+  /** Types the password key by key, as a user would (unlike `fill`, it fires every key event). */
+  async typePassword(password: string): Promise<void> {
+    await this.passwordInput.pressSequentially(password);
+  }
+
   /** Clicks the login button. */
   async submit(): Promise<void> {
     await this.loginButton.click();

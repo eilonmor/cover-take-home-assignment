@@ -25,7 +25,7 @@ test.describe('Login', () => {
       await expect.soft(loginPage.errorMessage).toHaveCount(0);
 
       // 2. Typing keeps the password masked.
-      await loginPage.fillCredentials({ password: ENV.password });
+      await loginPage.typePassword(ENV.password);
       await expect.soft(loginPage.passwordInput).toHaveAttribute('type', 'password');
       await expect.soft(loginPage.passwordInput).toHaveValue(ENV.password);
     },
