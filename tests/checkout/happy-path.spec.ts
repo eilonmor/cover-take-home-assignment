@@ -36,7 +36,7 @@ test.describe('Checkout', () => {
         }
         await expect.soft(checkoutInfoPage.continueButton).toHaveValue(CHECKOUT_FORM.continueLabel);
         await expect.soft(checkoutInfoPage.cancelButton).toBeVisible();
-        await expect.soft(checkoutInfoPage.cancelButton).toHaveText(CHECKOUT_FORM.cancelLabel);
+        await expect.soft(checkoutInfoPage.cancelButton).toHaveText(CHECKOUT_TEXT.cancel);
         await expect.soft(checkoutInfoPage.error).toHaveCount(0);
       });
 
