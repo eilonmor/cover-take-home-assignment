@@ -6,16 +6,21 @@ import { runGroupedCases } from '@utils/grouped';
 // Spec: specs/01-login.md, scenario 1.2. Grouped: one isolated step per row of invalidLoginCases().
 test.use({ storageState: GUEST_STATE });
 
-const CASES = invalidLoginCases();
 /** The rows' own ACs, plus AC-LOGIN-09 (the red error state), which every row checks. */
-const COVERS = [...new Set([...CASES.map((row) => row.covers), 'AC-LOGIN-09'])].sort().join(', ');
+const COVERS =
+  'AC-LOGIN-02, AC-LOGIN-03, AC-LOGIN-04, AC-LOGIN-05, AC-LOGIN-06, AC-LOGIN-07, AC-LOGIN-09, AC-LOGIN-12, AC-LOGIN-16, AC-LOGIN-17';
 
 test.describe('Login', () => {
   test(
     'TC-LOGIN-02 Invalid login attempts display the correct error message',
     { tag: ['@smoke', '@regression'], annotation: { type: 'covers', description: COVERS } },
     async ({ loginPage }) => {
-      await runGroupedCases(CASES, {
+      // Built here, not at module scope: test discovery must not need credentials for unselected tests.
+      const cases = invalidLoginCases();
+      const derived = [...new Set([...cases.map((row) => row.covers), 'AC-LOGIN-09'])].sort().join(', ');
+      expect(derived, 'the covers annotation matches the covers fields of invalidLoginCases()').toBe(COVERS);
+
+      await runGroupedCases(cases, {
         run: async ({ username, password, expectedError }) => {
           // Fresh state for every row.
           await loginPage.goto();
