@@ -46,11 +46,18 @@ export class ProductDetailsPage extends AppPage {
   }
 
   /**
-   * Waits for the details URL (with the product's id when `key` is given) and the product name.
+   * Waits for the details URL (with the product's id when `key` is given), the "Back to products"
+   * button, and then the product name.
+   *
+   * The SPA can update the URL before the DOM swaps, and the inventory list reuses the `inventory-item` and
+   * `inventory-item-name` ids, so `name` would match every list row (strict mode violation) during the
+   * transition. The inventory list has no "Back to products", so waiting on it first proves the swap.
+   * The "ITEM NOT FOUND" page has that button too: only a `key` (an exact `?id=N`) proves a real product.
    */
   async waitForLoaded(key?: ProductKey): Promise<void> {
     const route = key === undefined ? this.path : ROUTES.details(PRODUCTS[key].id);
     await expect(this.page).toHaveURL(routePattern(route));
+    await expect(this.backButton).toBeVisible();
     await expect(this.name).toBeVisible();
   }
 
@@ -71,9 +78,11 @@ export class ProductDetailsPage extends AppPage {
     await expect(this.addButton).toBeVisible();
   }
 
-  /** Clicks "Back to products" and waits for the inventory URL. */
+  /** Clicks "Back to products" and waits for the inventory URL and for the details page to unmount. */
   async backToProducts(): Promise<void> {
     await this.backButton.click();
     await expect(this.page).toHaveURL(routePattern(ROUTES.inventory));
+    // The URL changes before the DOM swaps; the inventory page has no "Back to products".
+    await expect(this.backButton).toHaveCount(0);
   }
 }

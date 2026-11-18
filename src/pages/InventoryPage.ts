@@ -30,10 +30,15 @@ export class InventoryPage extends AppPage {
     this.activeSortOption = page.getByTestId('active-option');
   }
 
-  /** Waits for the inventory URL and container. Allows for performance_glitch_user's slow render. */
+  /**
+   * Waits for the inventory URL and the product list. Allows for performance_glitch_user's slow render.
+   *
+   * The SPA can update the URL before the DOM swaps, and the details page also renders
+   * `inventory-container`, so the wait is on `inventory-list`, which only this page has.
+   */
   async waitForLoaded(): Promise<void> {
     await expect(this.page).toHaveURL(routePattern(this.path), { timeout: SLOW_RENDER_TIMEOUT });
-    await expect(this.container).toBeVisible({ timeout: SLOW_RENDER_TIMEOUT });
+    await expect(this.list.root).toBeVisible({ timeout: SLOW_RENDER_TIMEOUT });
   }
 
   /** The product's "Add to cart" button. */
@@ -82,15 +87,24 @@ export class InventoryPage extends AppPage {
     await this.sortSelect.selectOption(value);
   }
 
-  /** Clicks the product's name and waits for its details URL. */
+  /** Clicks the product's name and waits for its details URL and for the list to unmount. */
   async openDetailsByName(key: ProductKey): Promise<void> {
     await this.titleLink(key).click();
-    await expect(this.page).toHaveURL(routePattern(ROUTES.details(PRODUCTS[key].id)));
+    await this.waitForDetails(key);
   }
 
-  /** Clicks the product's image and waits for its details URL. */
+  /** Clicks the product's image and waits for its details URL and for the list to unmount. */
   async openDetailsByImage(key: ProductKey): Promise<void> {
     await this.imageLink(key).click();
+    await this.waitForDetails(key);
+  }
+
+  /**
+   * The URL changes before the DOM swaps, and the list rows reuse the details page's
+   * `inventory-item-*` ids, so also wait until the list is gone before the caller reads the page.
+   */
+  private async waitForDetails(key: ProductKey): Promise<void> {
     await expect(this.page).toHaveURL(routePattern(ROUTES.details(PRODUCTS[key].id)));
+    await expect(this.list.root).toHaveCount(0);
   }
 }

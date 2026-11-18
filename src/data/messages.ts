@@ -37,6 +37,13 @@ export const PAGE_TITLES = {
   checkoutComplete: 'Checkout: Complete!',
 } as const;
 
+/** Product button and link labels on the inventory and details pages (spec 02 §3, AC-PROD-02/08/10/11). */
+export const PRODUCT_TEXT = {
+  addToCart: 'Add to cart',
+  remove: 'Remove',
+  backToProducts: 'Back to products',
+} as const;
+
 /** Static texts on the checkout overview and complete pages (spec 04 §4). */
 export const CHECKOUT_TEXT = {
   paymentLabel: 'Payment Information:',
