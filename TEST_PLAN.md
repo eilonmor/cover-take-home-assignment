@@ -210,7 +210,7 @@ None of these is asserted as expected behavior. Two of them appear inside the Se
 | Regression | `npm run test:regression` | 18 / 18 | 18 / 18 | 18 / 18 | 54 passed | 0 | 1.6 min |
 | Fresh clone, no `.env` | `npm install && npm test` | 31 / 31 | 31 / 31 | 31 / 31 | 93 passed | 0 | 1.9 min |
 
-- 31 per browser = the 30 test cases + the agents' seed test. 16 smoke + 18 regression = 30, because 4 tests carry both tags (TC-LOGIN-02, TC-PROD-03, TC-CHK-02, TC-NAV-02).
+- 31 per browser = the 30 test cases + the agents' seed test. 16 smoke and 18 regression tests make 34 tag hits but 30 distinct tests, because 4 tests carry both tags (TC-LOGIN-02, TC-PROD-03, TC-CHK-02, TC-NAV-02).
 - **Grouped tests:** every case passed in every browser. TC-LOGIN-02 13/13, TC-LOGIN-04 4/4, TC-CHK-03 10/10, TC-NAV-02 12/12.
 - **Known issues observed** (annotated, not failing), in all 3 browsers:
   - DEF-CHK-SUBTOTAL in TC-CHK-04: "Item total: $57.980000000000004".
