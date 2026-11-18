@@ -12,9 +12,10 @@ if (fs.existsSync(ENV_FILE)) {
   dotenv.config({ path: ENV_FILE, quiet: true });
 } else {
   dotenv.config({ path: path.resolve(__dirname, '.env.example'), quiet: true });
-  // The runner and every worker load this config; print the notice once, from the runner only.
+  // The runner and every worker load this config; print the notice once, from the runner only. It goes to
+  // stderr, so stdout stays clean for reporters that write there (e.g. `--reporter=json > results.json`).
   if (process.env.TEST_WORKER_INDEX === undefined) {
-    console.log('No .env file found: using the public demo values from .env.example (copy it to .env to override).');
+    console.warn('No .env file found: using the public demo values from .env.example (copy it to .env to override).');
   }
 }
 
