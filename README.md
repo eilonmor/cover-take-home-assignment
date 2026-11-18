@@ -237,7 +237,7 @@ npm test -- --output=test-results-cli
 
 (`test-results-cli/` is git-ignored.)
 
-**Timeouts on a slow machine.** The full run takes about 2 minutes with 10 workers. On a slower machine or connection, use fewer workers, for example `npm test -- --workers=2`. On Windows, avoid running from a folder under `%TEMP%`: there the run was about 2.5× slower, likely because antivirus scans the per-test video and trace files.
+**Timeouts on a slow machine.** Local runs use 4 workers by default (`WORKERS` in `.env`, a number or a percentage of CPU cores such as `25%`; CI always uses 2). Too many parallel browsers make Firefox and WebKit time out, so on a slower machine or connection use fewer, for example `WORKERS=2` or `npm test -- --workers=2`. On Windows, avoid running from a folder under `%TEMP%`: there the run was about 2.5× slower, likely because antivirus scans the per-test video and trace files.
 
 **`Missing environment variable "…"`.** Both `.env` and `.env.example` are missing, or the variable is empty in your `.env`. Copy `.env.example` to `.env` again.
 

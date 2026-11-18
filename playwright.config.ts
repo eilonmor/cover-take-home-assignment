@@ -19,6 +19,14 @@ if (fs.existsSync(ENV_FILE)) {
   }
 }
 
+/** Parses WORKERS: "4" → 4, "25%" → "25%"; empty or unset → 4. Anything else fails fast with a clear message. */
+function localWorkers(value: string | undefined): number | string {
+  const raw = value?.trim();
+  if (!raw) return 4;
+  if (/^[1-9]\d*%?$/.test(raw)) return raw.endsWith('%') ? raw : Number(raw);
+  throw new Error(`Invalid WORKERS value "${raw}": use a positive number (e.g. 4) or a percentage (e.g. 25%).`);
+}
+
 /**
  * Playwright configuration.
  * @see https://playwright.dev/docs/test-configuration
@@ -39,8 +47,10 @@ export default defineConfig({
   // Assignment requirement: retries: 1.
   retries: 1,
 
-  // Let Playwright pick the worker count locally; keep CI predictable.
-  workers: process.env.CI ? 2 : undefined,
+  // CI always uses 2 workers, even though it loads WORKERS from .env.example. Locally, WORKERS sets the count
+  // (a number, or a percentage of CPU cores such as "25%"), with 4 as the default. Playwright's own default (half
+  // the cores) starts too many browsers on a many-core machine, and Firefox/WebKit then time out.
+  workers: process.env.CI ? 2 : localWorkers(process.env.WORKERS),
 
   timeout: 30_000,
   expect: { timeout: 5_000 },
