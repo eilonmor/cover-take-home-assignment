@@ -10,7 +10,7 @@ Each phase runs in its own session, on its own branch from an up-to-date `main`,
 |-------|--------|----|--------|
 | 0. Foundation | `feat/foundation` | [#2](https://github.com/eilonmor/cover-take-home-assignment/pull/2) | Merged |
 | 1. Login tests | `feat/tests-login` | [#3](https://github.com/eilonmor/cover-take-home-assignment/pull/3) | Merged |
-| 2. Products tests | `feat/tests-products` | | In progress |
+| 2. Products tests | `feat/tests-products` | | In review |
 | 3. Cart tests | `feat/tests-cart` | | Not started |
 | 4. Checkout tests | `feat/tests-checkout` | | Not started |
 | 5. Navigation tests | `feat/tests-navigation` | | Not started |
@@ -390,32 +390,32 @@ Phase 1 (Login tests) of docs/ROADMAP.md. Windows machine.
 Spec: [`specs/02-products.md`](../specs/02-products.md). Folder: `tests/products/`. **Mode:** authenticated (default, standard user). Every test starts with `inventoryPage.goto()`. Describe: `Products`. None of these tests uses the grouped runner. Sequential sub-checks use `test.step` + `expect.soft`.
 
 ### Tasks
-- [ ] **2.1 TC-PROD-01 Inventory shows 6 products with exact catalog data.** `tests/products/inventory-catalog.spec.ts`. Tags `@smoke`. Covers AC-PROD-01, 02.
+- [x] **2.1 TC-PROD-01 Inventory shows 6 products with exact catalog data.** `tests/products/inventory-catalog.spec.ts`. Tags `@smoke`. Covers AC-PROD-01, 02.
   - `title` "Products".
   - `expect(inventoryPage.list).toShowProducts(CATALOG_AZ)`.
   - `list.descriptions` `toHaveText` the catalog descriptions.
   - For each product, soft: `image(key)` is visible, `alt` = name, `src` does not match `PLACEHOLDER_IMAGE`; `addButton(key)` has text "Add to cart".
   - `toHaveCartBadge(0)`.
   → `test(products): add TC-PROD-01 inventory catalog data`
-- [ ] **2.2 TC-PROD-02 Sort dropdown default and options.** `tests/products/sort-options.spec.ts`. Tags `@regression`. Covers AC-PROD-03, 04.
+- [x] **2.2 TC-PROD-02 Sort dropdown default and options.** `tests/products/sort-options.spec.ts`. Tags `@regression`. Covers AC-PROD-03, 04.
   - `sortSelect` `toHaveValue('az')`; `activeSortOption` "Name (A to Z)".
   - `sortOptions` `toHaveText(SORT_OPTIONS.map(label))`, and each option `toHaveAttribute('value', …)`.
   - `toShowProducts(CATALOG_AZ)`.
   → `test(products): add TC-PROD-02 sort dropdown default and options`
-- [ ] **2.3 TC-PROD-03 Each sort option orders products correctly.** `tests/products/sort-order.spec.ts`. Tags `@smoke @regression`. Covers AC-PROD-05.
+- [x] **2.3 TC-PROD-03 Each sort option orders products correctly.** `tests/products/sort-order.spec.ts`. Tags `@smoke @regression`. Covers AC-PROD-05.
   - For za, lohi, hilo, then az, in a `test.step` each: `sortBy(value)` → soft `toShowProducts(option.expectedOrder)` (names + prices), `list.items` has 6, and the URL is still `/inventory.html`.
   - Comment on the observed tie, Bolt before Red, in the price sorts.
   → `test(products): add TC-PROD-03 sort orders`
-- [ ] **2.4 TC-PROD-04 Open details via name and return with Back to products.** `tests/products/details-via-name.spec.ts`. Tags `@smoke`. Covers AC-PROD-06, 08, 09.
+- [x] **2.4 TC-PROD-04 Open details via name and return with Back to products.** `tests/products/details-via-name.spec.ts`. Tags `@smoke`. Covers AC-PROD-06, 08, 09.
   - `openDetailsByName('backpack')`. Expect: the URL is `?id=4`; name, price and description from `PRODUCTS`; image visible with alt and not a placeholder; the add button reads "Add to cart"; the back button reads "Back to products".
   - `backToProducts()` → `/inventory.html` with 6 items.
   - Repeat for `redTShirt` (id 3). This checks that the ids don't follow list order.
   → `test(products): add TC-PROD-04 details via name`
-- [ ] **2.5 TC-PROD-05 Open details via image.** `tests/products/details-via-image.spec.ts`. Tags `@regression`. Covers AC-PROD-07, 08.
+- [x] **2.5 TC-PROD-05 Open details via image.** `tests/products/details-via-image.spec.ts`. Tags `@regression`. Covers AC-PROD-07, 08.
   - `openDetailsByImage('bikeLight')` → `?id=0`; data matches; not a placeholder.
   - Back → `openDetailsByImage('fleeceJacket')` → `?id=5`; data matches.
   → `test(products): add TC-PROD-05 details via image`
-- [ ] **2.6 TC-PROD-06 Add/remove toggle on inventory page.** `tests/products/inventory-add-remove.spec.ts`. Tags `@smoke`. Covers AC-PROD-10, 11.
+- [x] **2.6 TC-PROD-06 Add/remove toggle on inventory page.** `tests/products/inventory-add-remove.spec.ts`. Tags `@smoke`. Covers AC-PROD-10, 11.
   - Badge 0.
   - Add backpack → its remove button reads "Remove", badge 1.
   - Add bikeLight → badge 2; the other 4 add buttons are still "Add to cart".
@@ -427,10 +427,10 @@ Spec: [`specs/02-products.md`](../specs/02-products.md). Folder: `tests/products
 Known issues: none for standard_user. The deviations of problem_user, visual_user and error_user are out of scope (Backlog).
 
 ### Review checklist (phase-specific)
-- [ ] Expected orders come from `SORT_OPTIONS`, and catalog values come from `PRODUCTS`. No hard-coded name lists in specs.
-- [ ] Item links are built from `PRODUCTS[key].id`, never from the list index.
-- [ ] The special slug only goes through `getByTestId` exact strings.
-- [ ] `toShowProducts` / `toHaveCartBadge` are used instead of hand-rolled loops where they apply.
+- [x] Expected orders come from `SORT_OPTIONS`, and catalog values come from `PRODUCTS`. No hard-coded name lists in specs.
+- [x] Item links are built from `PRODUCTS[key].id`, never from the list index.
+- [x] The special slug only goes through `getByTestId` exact strings.
+- [x] `toShowProducts` / `toHaveCartBadge` are used instead of hand-rolled loops where they apply.
 
 ### Execution prompt
 ```text
