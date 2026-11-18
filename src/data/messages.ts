@@ -10,6 +10,13 @@ export const LOGIN_ERRORS = {
   passwordRequired: 'Epic sadface: Password is required',
 } as const;
 
+/** Placeholders and button label of the login form (spec 01 §4, AC-LOGIN-10). */
+export const LOGIN_FORM = {
+  usernamePlaceholder: 'Username',
+  passwordPlaceholder: 'Password',
+  buttonLabel: 'Login',
+} as const;
+
 /** Error shown on the login page after opening a protected page without a session (spec 05 §4). */
 export const protectedPageError = (path: string): string =>
   `Epic sadface: You can only access '${path}' when you are logged in.`;
