@@ -8,7 +8,6 @@ import { summarize } from '@utils/money';
 // The summary is checked twice: against the cents rule (summarize) and against the exact labels observed live.
 
 const ITEMS: readonly ProductKey[] = ['backpack', 'bikeLight'];
-const OBSERVED = observedLabels(checkoutCart(ITEMS)); // "Item total: $39.98", "Tax: $3.20", "Total: $43.18"
 
 test.describe('Checkout', () => {
   test(
@@ -21,6 +20,9 @@ test.describe('Checkout', () => {
       },
     },
     async ({ shop, checkoutInfoPage, checkoutOverviewPage, checkoutCompletePage }) => {
+      // Resolved here, not at module load, so a data mismatch fails this test instead of the file's collection.
+      const observed = observedLabels(checkoutCart(ITEMS)); // "Item total: $39.98", "Tax: $3.20", "Total: $43.18"
+
       await test.step('Add the backpack and the bike light, then check out: an empty step one form', async () => {
         // Hard guard: startCheckout waits for /checkout-step-one.html and the form.
         await shop.startCheckout(ITEMS);
@@ -57,9 +59,9 @@ test.describe('Checkout', () => {
         // The rule: sum of the catalog prices, 8% tax rounded to the cent, total = sum + tax (integer cents).
         await expect.soft(checkoutOverviewPage).toHaveOrderSummary(summarize(ITEMS.map((key) => PRODUCTS[key].priceCents)));
         // The exact strings observed live (spec 04 §4 table).
-        await expect.soft(checkoutOverviewPage.subtotalLabel).toHaveText(OBSERVED.subtotal);
-        await expect.soft(checkoutOverviewPage.taxLabel).toHaveText(OBSERVED.tax);
-        await expect.soft(checkoutOverviewPage.totalLabel).toHaveText(OBSERVED.total);
+        await expect.soft(checkoutOverviewPage.subtotalLabel).toHaveText(observed.subtotal);
+        await expect.soft(checkoutOverviewPage.taxLabel).toHaveText(observed.tax);
+        await expect.soft(checkoutOverviewPage.totalLabel).toHaveText(observed.total);
       });
 
       await test.step('Finish: the confirmation page with an empty cart', async () => {
