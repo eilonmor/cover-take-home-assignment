@@ -32,7 +32,7 @@ export const test = base.extend<AllureFixtures>({
       const labels: { name: string; value: string }[] = [];
       // titlePath is [file, ...describes, test title]: the innermost describe is the area.
       if (testInfo.titlePath.length > 2) {
-        labels.push({ name: 'feature', value: testInfo.titlePath[testInfo.titlePath.length - 2] ?? '' });
+        labels.push({ name: 'feature', value: testInfo.titlePath[testInfo.titlePath.length - 2] });
       }
       for (const { type, description = '' } of testInfo.annotations) {
         if (type === COVERS) {
