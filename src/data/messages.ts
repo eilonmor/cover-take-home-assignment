@@ -28,6 +28,15 @@ export const CHECKOUT_ERRORS = {
   postalCode: 'Error: Postal Code is required',
 } as const;
 
+/** Placeholders and button labels of the checkout step one form (spec 04 §4, AC-CHK-01). */
+export const CHECKOUT_FORM = {
+  firstNamePlaceholder: 'First Name',
+  lastNamePlaceholder: 'Last Name',
+  postalCodePlaceholder: 'Zip/Postal Code',
+  continueLabel: 'Continue',
+  cancelLabel: 'Cancel',
+} as const;
+
 /** The `title` data-test text of each logged-in page. */
 export const PAGE_TITLES = {
   inventory: 'Products',
