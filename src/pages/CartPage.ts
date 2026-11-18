@@ -32,19 +32,36 @@ export class CartPage extends AppPage {
     await expect(this.checkoutButton).toBeVisible();
   }
 
-  /** The product's "Remove" button in the cart. */
+  /** The product's "Remove" button, scoped to its own row. */
   removeButton(key: ProductKey): Locator {
-    return this.page.getByTestId(`remove-${PRODUCTS[key].slug}`);
+    return this.list.row(key).getByTestId(`remove-${PRODUCTS[key].slug}`);
   }
 
   /**
-   * Any editable quantity control (text or number input) in the product's row. The cart has none:
-   * quantity is fixed at 1 (AC-CART-06), so tests expect a count of 0. A role query scoped to the row,
-   * because there is no data-test id for an element that must not exist.
+   * Every button in the product's row except the name link (which has role button, "View details
+   * for <name>"). The only one must be "Remove": a quantity stepper (+/-) would show up here as
+   * extra buttons (AC-CART-06). A role query scoped to the row.
+   */
+  rowButtons(key: ProductKey): Locator {
+    return this.list
+      .row(key)
+      .getByRole('button')
+      .filter({ hasNot: this.page.getByTestId('inventory-item-name') });
+  }
+
+  /**
+   * Any editable quantity control (text or number input, slider, select) in the product's row. The
+   * cart has none: quantity is fixed at 1 (AC-CART-06), so tests expect a count of 0. A role query
+   * scoped to the row, because there is no data-test id for an element that must not exist.
+   * Assert the row exists first: a missing row also has 0 inputs.
    */
   quantityInputs(key: ProductKey): Locator {
     const row = this.list.row(key);
-    return row.getByRole('textbox').or(row.getByRole('spinbutton'));
+    return row
+      .getByRole('textbox')
+      .or(row.getByRole('spinbutton'))
+      .or(row.getByRole('slider'))
+      .or(row.getByRole('combobox'));
   }
 
   /** Removes each product, in order, waiting for its row to disappear. */

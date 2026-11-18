@@ -25,8 +25,8 @@ test.describe('Cart', () => {
         await expect.soft(cartPage.title).toHaveText(PAGE_TITLES.cart);
         await expect.soft(cartPage.quantityLabel).toHaveText(CART_TEXT.quantityLabel);
         await expect.soft(cartPage.descriptionLabel).toHaveText(CART_TEXT.descriptionLabel);
-        await expect.soft(cartPage.continueShoppingButton).toBeVisible();
-        await expect.soft(cartPage.checkoutButton).toBeVisible();
+        await expect.soft(cartPage.continueShoppingButton).toHaveText(CART_TEXT.continueShopping);
+        await expect.soft(cartPage.checkoutButton).toHaveText(CART_TEXT.checkout);
       });
 
       await test.step('One row per product, in add order, with catalog data and quantity 1', async () => {
@@ -35,9 +35,13 @@ test.describe('Cart', () => {
         await expect.soft(cartPage.list.descriptions).toHaveText(ADDED.map((key) => PRODUCTS[key].description));
       });
 
-      await test.step('Each row has a Remove button and no quantity input', async () => {
+      await test.step('Each row has its own Remove button as its only control, and no quantity input', async () => {
         for (const key of ADDED) {
+          // Hard guard: the row exists, so the "0 inputs" check below cannot pass on a missing row.
+          await expect(cartPage.list.row(key)).toHaveCount(1);
           await expect.soft(cartPage.removeButton(key)).toHaveText(PRODUCT_TEXT.remove);
+          // Exactly one button (no +/- stepper), and it is Remove.
+          await expect.soft(cartPage.rowButtons(key)).toHaveText([PRODUCT_TEXT.remove]);
           await expect.soft(cartPage.quantityInputs(key)).toHaveCount(0);
         }
       });
