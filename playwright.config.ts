@@ -48,10 +48,15 @@ export default defineConfig({
   reporter: [
     ['list'],
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
-    // Raw results for the Allure 3 report. Viewing it is optional (npm run allure:generate / allure:open);
-    // the HTML report above never depends on it. Annotations are mapped to Allure labels by
-    // src/fixtures/allure.fixture.ts, so they are not repeated as "covers: …" steps.
+    // Raw results for the Allure 3 report. The HTML report above never depends on it. Annotations are mapped
+    // to Allure labels by src/fixtures/allure.fixture.ts, so they are not repeated as "covers: …" steps.
     ['allure-playwright', { resultsDir: ALLURE_RESULTS_DIR, reportAnnotations: false }],
+    // Local runs only: builds the Allure report and opens it in the browser when the run ends. It must stay
+    // after allure-playwright, which finishes writing the results in its own onEnd. ALLURE_OPEN=false (or 0, no,
+    // off) turns it off.
+    ...(!process.env.CI && !/^(false|0|no|off)$/i.test(process.env.ALLURE_OPEN ?? '')
+      ? [['./src/reporters/allure-open.reporter.ts'] as ReporterDescription]
+      : []),
     // CI only: each browser job also writes a blob report (blob-report/report-<browser>.zip, named by
     // PLAYWRIGHT_BLOB_OUTPUT_NAME in the workflow), which the report job merges into one HTML report.
     ...(process.env.CI ? [['blob'] as ReporterDescription] : []),
