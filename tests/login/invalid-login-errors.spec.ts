@@ -2,6 +2,7 @@ import { test, expect, GUEST_STATE } from '@fixtures/index';
 import { invalidLoginCases } from '@data/login-cases';
 import { ROUTES, routePattern } from '@data/routes';
 import { runGroupedCases } from '@utils/grouped';
+import { resetBrowserState } from '@utils/storage';
 
 // Spec: specs/01-login.md, scenario 1.2. Grouped: one isolated step per row of invalidLoginCases().
 test.use({ storageState: GUEST_STATE });
@@ -14,16 +15,18 @@ test.describe('Login', () => {
   test(
     'TC-LOGIN-02 Invalid login attempts display the correct error message',
     { tag: ['@smoke', '@regression'], annotation: { type: 'covers', description: COVERS } },
-    async ({ loginPage }) => {
+    async ({ page, loginPage }) => {
       // Built here, not at module scope: test discovery must not need credentials for unselected tests.
       const cases = invalidLoginCases();
       const derived = [...new Set([...cases.map((row) => row.covers), 'AC-LOGIN-09'])].sort().join(', ');
-      expect(derived, 'the covers annotation matches the covers fields of invalidLoginCases()').toBe(COVERS);
+      // Soft: a bookkeeping mismatch fails the test but must not stop the 13 behavioral cases.
+      expect.soft(derived, 'the covers annotation matches the covers fields of invalidLoginCases()').toBe(COVERS);
 
       await runGroupedCases(cases, {
         run: async ({ username, password, expectedError }) => {
-          // Fresh state for every row.
-          await loginPage.goto();
+          // Fresh state for every row: no session or storage carries over, even if a row wrongly logs in.
+          await resetBrowserState(page);
+          await loginPage.waitForLoaded();
           await expect.soft(loginPage.errorMessage).toHaveCount(0);
 
           // Empty values are left untouched by fillCredentials.
