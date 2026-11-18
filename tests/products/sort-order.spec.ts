@@ -1,7 +1,7 @@
 import { test, expect } from '@fixtures/index';
 import { CATALOG_AZ } from '@data/products';
 import { ROUTES, routePattern } from '@data/routes';
-import { SORT_OPTIONS, type SortValue } from '@data/sort-options';
+import { sortOption, type SortValue } from '@data/sort-options';
 
 // Spec: specs/02-products.md, scenario 1.3. Authenticated (default): starts logged in as standard_user.
 
@@ -13,16 +13,10 @@ test.describe('Products', () => {
     'TC-PROD-03 Each sort option orders products correctly',
     { tag: ['@smoke', '@regression'], annotation: { type: 'covers', description: 'AC-PROD-05' } },
     async ({ inventoryPage }) => {
+      // Hard guard: goto() waits for the /inventory.html URL and the product list.
       await inventoryPage.goto();
-      // Hard guard: everything below reads the inventory page.
-      await expect(inventoryPage.page).toHaveURL(routePattern(ROUTES.inventory));
 
-      for (const value of RUN_ORDER) {
-        const option = SORT_OPTIONS.find((candidate) => candidate.value === value);
-        if (option === undefined) {
-          throw new Error(`Sort value "${value}" is not one of SORT_OPTIONS.`);
-        }
-
+      for (const option of RUN_ORDER.map(sortOption)) {
         await test.step(`Sort by ${option.label}`, async () => {
           await inventoryPage.sortBy(option.value);
           await expect.soft(inventoryPage.sortSelect).toHaveValue(option.value);

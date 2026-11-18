@@ -39,3 +39,12 @@ export const SORT_OPTIONS: readonly SortOption[] = [
 
 /** The option selected when the inventory first loads. */
 export const DEFAULT_SORT: SortValue = 'az';
+
+/** The sort option with this value. Throws if SORT_OPTIONS has no such option (a data error). */
+export function sortOption(value: SortValue): SortOption {
+  const option = SORT_OPTIONS.find((candidate) => candidate.value === value);
+  if (option === undefined) {
+    throw new Error(`Sort value "${value}" is not one of SORT_OPTIONS.`);
+  }
+  return option;
+}
