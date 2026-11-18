@@ -71,6 +71,23 @@ npm run report
 
 It opens `playwright-report/` from the last run. Each test shows its steps, its annotations (`covers`, `known-issue`, `grouped`) and its attachments. A failed test also keeps a screenshot, a video and a trace (`retain-on-failure`), and the trace opens in the Trace Viewer from the report.
 
+**Allure Report 3** (optional bonus). Nothing extra needs installing: `npm install` already added the `allure-playwright` reporter and the Allure 3 CLI, which is a Node package and needs no Java. Every test run writes raw results to `allure-results/`, and each run starts by clearing the previous results.
+
+```bash
+npm run allure:generate   # allure generate allure-results -o allure-report --clean
+npm run allure:open       # allure open allure-report (serves the report and opens a browser)
+```
+
+How the project's metadata appears in Allure:
+- The `@smoke` / `@regression` tags become Allure tags.
+- `covers` becomes one **story** per acceptance criterion, under a **feature** per area. The Behaviors tab is grouped by AC.
+- `known-issue` adds a `known-issue` tag and a label with the defect text.
+- `grouped` becomes a label with the case summary, and each grouped case is an Allure step.
+
+The mapping is done by an automatic fixture, [`allure.fixture.ts`](src/fixtures/allure.fixture.ts), because allure-playwright does not read annotations added while a test runs. It sends the labels as one "Allure Metadata" attachment, which is also visible in the HTML report.
+
+The HTML report never depends on Allure.
+
 ## Project structure
 
 ```
@@ -80,13 +97,13 @@ It opens `playwright-report/` from the last run. Each test shows its steps, its 
 ├── specs/                   Behavior specs per area: user stories, ACs, UI contract, defects
 ├── src/
 │   ├── data/                Typed test data: products, sort orders, messages, routes, users, login and checkout cases
-│   ├── fixtures/            Custom fixtures (auth, page objects), custom matchers, the single `test`/`expect` entry point
+│   ├── fixtures/            Custom fixtures (auth, page objects, Allure labels), custom matchers, the single `test`/`expect` entry point
 │   ├── pages/               Page Object Model
 │   │   ├── components/      Shared parts: Header, BurgerMenu, ItemList
 │   │   ├── flows/           ShopFlow: multi-page journeys (add to cart → checkout → order)
 │   │   └── *.ts             One class per page, plus the BasePage/AppPage bases and the registry
 │   ├── utils/               Money (integer cents), grouped runner, storage/session helpers, env, timeouts
-│   └── global-setup.ts      Wipes the old auth files before each run
+│   └── global-setup.ts      Wipes the old auth files and Allure results before each run
 ├── tests/
 │   ├── login/ products/ cart/ checkout/ navigation/    6 specs per area
 │   └── seed.spec.ts         Seed test for the Playwright agents
@@ -101,7 +118,7 @@ It opens `playwright-report/` from the last run. Each test shows its steps, its 
 
 ### Fixtures and authentication
 
-Specs import from one place only: `import { test, expect, GUEST_STATE } from '@fixtures/index'`. `test` is `mergeTests(auth, pages)`.
+Specs import from one place only: `import { test, expect, GUEST_STATE } from '@fixtures/index'`. `test` is `mergeTests(auth, pages, allure)`.
 
 - **Auth fixture** ([`auth.fixture.ts`](src/fixtures/auth.fixture.ts)): each worker logs in **once per project and user**, through the real login form, and saves Playwright `storageState`. Every test then gets a new browser context from that state. It starts logged in with an empty cart, fully isolated from other tests. `globalSetup` deletes the old auth files at the start of each run, so a session is never reused across runs.
 - **Guest mode:** `test.use({ storageState: GUEST_STATE })` for logged-out specs, such as all Login tests and the protected-URL test.
@@ -169,6 +186,7 @@ The project was built with the official Playwright Test Agents, set up once with
 | [Playwright Test](https://playwright.dev/) 1.65 | Test runner, browsers, assertions, HTML report, traces |
 | [TypeScript](https://www.typescriptlang.org/) 7 (strict) | Typed page objects, data and fixtures |
 | [dotenv](https://github.com/motdotla/dotenv) | Loads `.env` / `.env.example` |
+| [Allure Report 3](https://allurereport.org/) + `allure-playwright` | Optional rich report with labels by area, AC and known issue |
 | Playwright Test Agents + MCP | Spec planning, test generation and healing |
 
 ## Troubleshooting

@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
+import { ALLURE_RESULTS_DIR } from './src/utils/paths';
 
 // Load environment variables from .env. Without one, fall back to .env.example, which holds only the
 // public demo values, so a fresh clone runs in three steps: clone → install → test.
@@ -45,6 +46,9 @@ export default defineConfig({
   reporter: [
     ['list'],
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
+    // Optional Allure 3 report (npm run allure:generate / allure:open). Annotations are mapped to Allure
+    // labels by src/fixtures/allure.fixture.ts, so they are not repeated as "covers: …" steps.
+    ['allure-playwright', { resultsDir: ALLURE_RESULTS_DIR, reportAnnotations: false }],
   ],
 
   use: {
