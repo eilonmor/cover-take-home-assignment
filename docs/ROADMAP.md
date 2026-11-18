@@ -469,7 +469,7 @@ Spec: [`specs/03-cart.md`](../specs/03-cart.md). Folder: `tests/cart/`. **Mode:*
     - `toShowProducts(['backpack','bikeLight'])`;
     - the quantities are `['1','1']` and the descriptions equal `PRODUCTS`;
     - the remove buttons for both are visible;
-    - there is no quantity input: `cartPage.list.row(key).getByRole('textbox')` has 0 (scoped role query, documented in the page object as `quantityInputs`).
+    - there is no quantity control: `cartPage.quantityInputs(key)` (row-scoped role query for textbox, spinbutton, slider and combobox, hidden ones included) has 0, after a hard guard that the row exists; and `cartPage.rowButtons(key)` (row buttons except the name link) is exactly `["Remove"]`, so a +/- stepper is caught.
   → `test(cart): add TC-CART-02 cart contents`
 - [x] **3.3 TC-CART-03 Removing from the cart page updates rows, badge and inventory state.** `tests/cart/remove-from-cart.spec.ts`. Tags `@smoke`. Covers AC-CART-07, 08, 03.
   - `shop.addAndOpenCart(['backpack','bikeLight','onesie'])` → 3 rows, badge 3.
