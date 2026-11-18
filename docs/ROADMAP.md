@@ -11,7 +11,7 @@ Each phase runs in its own session, on its own branch from an up-to-date `main`,
 | 0. Foundation | `feat/foundation` | [#2](https://github.com/eilonmor/cover-take-home-assignment/pull/2) | Merged |
 | 1. Login tests | `feat/tests-login` | [#3](https://github.com/eilonmor/cover-take-home-assignment/pull/3) | Merged |
 | 2. Products tests | `feat/tests-products` | [#4](https://github.com/eilonmor/cover-take-home-assignment/pull/4) | Merged |
-| 3. Cart tests | `feat/tests-cart` | | In progress |
+| 3. Cart tests | `feat/tests-cart` | | In review |
 | 4. Checkout tests | `feat/tests-checkout` | | Not started |
 | 5. Navigation tests | `feat/tests-navigation` | | Not started |
 | 6. Docs & delivery | `docs/delivery` | | Not started |
@@ -456,12 +456,12 @@ Phase 2 (Products tests) of docs/ROADMAP.md. Windows machine.
 Spec: [`specs/03-cart.md`](../specs/03-cart.md). Folder: `tests/cart/`. **Mode:** authenticated (default). A new context from the worker state starts with an empty cart. Describe: `Cart`. None of these tests uses the grouped runner.
 
 ### Tasks
-- [ ] **3.1 TC-CART-01 Cart badge hidden when empty and matches item count.** `tests/cart/badge-count.spec.ts`. Tags `@smoke`. Covers AC-CART-01, 02, 03.
+- [x] **3.1 TC-CART-01 Cart badge hidden when empty and matches item count.** `tests/cart/badge-count.spec.ts`. Tags `@smoke`. Covers AC-CART-01, 02, 03.
   - `inventoryPage.goto()` → `toHaveCartBadge(0)`.
   - Add the 6 products in the spec's order (backpack, bikeLight, boltTShirt, fleeceJacket, onesie, redTShirt), asserting the badge 1..6 after each add.
   - `header.openCart()` → `/cart.html`, badge 6.
   → `test(cart): add TC-CART-01 badge count`
-- [ ] **3.2 TC-CART-02 Cart page lists items with correct quantity, name, description and price.** `tests/cart/cart-contents.spec.ts`. Tags `@smoke`. Covers AC-CART-04, 05, 06.
+- [x] **3.2 TC-CART-02 Cart page lists items with correct quantity, name, description and price.** `tests/cart/cart-contents.spec.ts`. Tags `@smoke`. Covers AC-CART-04, 05, 06.
   - Add backpack and bikeLight → badge 2 → `openCart()`.
   - Expect:
     - `title` "Your Cart", `quantityLabel` "QTY", `descriptionLabel` "Description";
@@ -471,23 +471,23 @@ Spec: [`specs/03-cart.md`](../specs/03-cart.md). Folder: `tests/cart/`. **Mode:*
     - the remove buttons for both are visible;
     - there is no quantity input: `cartPage.list.row(key).getByRole('textbox')` has 0 (scoped role query, documented in the page object as `quantityInputs`).
   → `test(cart): add TC-CART-02 cart contents`
-- [ ] **3.3 TC-CART-03 Removing from the cart page updates rows, badge and inventory state.** `tests/cart/remove-from-cart.spec.ts`. Tags `@smoke`. Covers AC-CART-07, 08, 03.
+- [x] **3.3 TC-CART-03 Removing from the cart page updates rows, badge and inventory state.** `tests/cart/remove-from-cart.spec.ts`. Tags `@smoke`. Covers AC-CART-07, 08, 03.
   - `shop.addAndOpenCart(['backpack','bikeLight','onesie'])` → 3 rows, badge 3.
   - `remove('bikeLight')` → `toShowProducts(['backpack','onesie'])`, badge 2.
   - `continueShopping()` → the bikeLight add button and the backpack and onesie remove buttons are visible.
   - `openCart()` → remove the other 2 → 0 rows, badge 0; the labels and buttons are still visible.
   → `test(cart): add TC-CART-03 remove from cart`
-- [ ] **3.4 TC-CART-04 Continue Shopping and reload preserve the cart.** `tests/cart/cart-persistence.spec.ts`. Tags `@regression`. Covers AC-CART-10, 14.
+- [x] **3.4 TC-CART-04 Continue Shopping and reload preserve the cart.** `tests/cart/cart-persistence.spec.ts`. Tags `@regression`. Covers AC-CART-10, 14.
   - `addAndOpenCart(['fleeceJacket','onesie'])` → `page.reload()` → same order, badge 2.
   - `continueShopping()` → badge 2, both remove buttons visible.
   - `openDetailsByName('fleeceJacket')` → the remove button is visible → `backToProducts()` → `openCart()` → 2 rows, badge 2.
   → `test(cart): add TC-CART-04 cart persistence`
-- [ ] **3.5 TC-CART-05 Cart items appear in add order, including one added from the details page.** `tests/cart/cart-order.spec.ts`. Tags `@regression`. Covers AC-CART-13, 16.
+- [x] **3.5 TC-CART-05 Cart items appear in add order, including one added from the details page.** `tests/cart/cart-order.spec.ts`. Tags `@regression`. Covers AC-CART-13, 16.
   - Add fleeceJacket, then backpack → badge 2.
   - `productDetailsPage.open('bikeLight')` (id 0) → `addToCart()` → the remove button is visible, badge 3.
   - `openCart()` → `toShowProducts(['fleeceJacket','backpack','bikeLight'])` (not catalog order).
   → `test(cart): add TC-CART-05 cart add order`
-- [ ] **3.6 TC-CART-06 Checkout button goes to checkout step one and item name opens details.** `tests/cart/cart-navigation.spec.ts`. Tags `@smoke`. Covers AC-CART-11, 15.
+- [x] **3.6 TC-CART-06 Checkout button goes to checkout step one and item name opens details.** `tests/cart/cart-navigation.spec.ts`. Tags `@smoke`. Covers AC-CART-11, 15.
   - `addAndOpenCart(['backpack'])` → `openItem('backpack')` → the URL is `?id=4`, the name is shown, the remove button is visible.
   - `openCart()` → `checkout()` → the URL is `/checkout-step-one.html` only. Don't assert the form.
   → `test(cart): add TC-CART-06 cart navigation`
@@ -495,9 +495,9 @@ Spec: [`specs/03-cart.md`](../specs/03-cart.md). Folder: `tests/cart/`. **Mode:*
 Known issues: none in the Selected set. The empty-cart checkout defect (TC-CART-08) is Backlog and goes into TEST_PLAN out of scope / risks.
 
 ### Review checklist (phase-specific)
-- [ ] Row values are read only after the `/cart.html` URL wait, inside `waitForLoaded`.
-- [ ] Order assertions use `toShowProducts`, which compares in exact order.
-- [ ] No test asserts the inventory's add/remove toggle beyond what the Cart ACs need (PROD owns it).
+- [x] Row values are read only after the `/cart.html` URL wait, inside `waitForLoaded`.
+- [x] Order assertions use `toShowProducts`, which compares in exact order.
+- [x] No test asserts the inventory's add/remove toggle beyond what the Cart ACs need (PROD owns it).
 
 ### Execution prompt
 ```text
