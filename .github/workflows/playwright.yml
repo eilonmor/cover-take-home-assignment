@@ -1,0 +1,128 @@
+name: Playwright Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# A newer push to the same branch or PR cancels the run in progress.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+          cache: npm
+      # --ignore-scripts skips the postinstall browser download; type checking needs no browsers.
+      - run: npm ci --ignore-scripts
+      - run: npm run typecheck
+
+  test:
+    name: Tests (${{ matrix.project }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium, firefox, webkit]
+    # CI=true (set by GitHub) gives 2 workers, forbidOnly and the blob reporter. There is no .env in CI,
+    # so the config falls back to .env.example, which holds only the public demo values. No secrets are needed.
+    env:
+      # One blob file per browser, so the report job can merge all three without name clashes.
+      PLAYWRIGHT_BLOB_OUTPUT_NAME: report-${{ matrix.project }}.zip
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci --ignore-scripts
+      # Only this job's browser, with its Linux system dependencies.
+      - run: npx playwright install --with-deps ${{ matrix.project }}
+      - run: npx playwright test --project=${{ matrix.project }}
+      - name: Upload blob report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: blob-report-${{ matrix.project }}
+          path: blob-report/
+          retention-days: 1
+      - name: Upload Allure results
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: allure-results-${{ matrix.project }}
+          path: allure-results/
+          retention-days: 1
+
+  # Merges the three browsers into one Playwright HTML report and one Allure report, even when tests failed.
+  report:
+    name: Report
+    needs: test
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: blob-report-*
+          path: all-blob-reports
+          merge-multiple: true
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: allure-results-*
+          path: allure-results
+          merge-multiple: true
+      - run: npx playwright merge-reports --reporter html ./all-blob-reports
+      - run: npm run allure:generate
+      # The site: the Playwright report at the root, the Allure report under allure/.
+      - run: |
+          mv playwright-report site
+          mv allure-report site/allure
+      - name: Upload merged reports
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports
+          path: site/
+          retention-days: 14
+      - name: Upload GitHub Pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: site/
+
+  # Publishes the merged reports to GitHub Pages. Only pushes to main deploy: the github-pages
+  # environment accepts the default branch only, and a PR must not replace the main report.
+  deploy:
+    name: Deploy reports to GitHub Pages
+    needs: report
+    if: ${{ !cancelled() && needs.report.result == 'success' && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

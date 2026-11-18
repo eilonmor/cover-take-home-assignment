@@ -1,9 +1,23 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices, type ReporterDescription } from '@playwright/test';
 import dotenv from 'dotenv';
+import fs from 'fs';
 import path from 'path';
+import { ALLURE_RESULTS_DIR } from './src/utils/paths';
 
-// Load environment variables from .env (see .env.example).
-dotenv.config({ path: path.resolve(__dirname, '.env'), quiet: true });
+// Load environment variables from .env. Without one, fall back to .env.example, which holds only the
+// public demo values, so a fresh clone runs in three steps: clone → install → test.
+// Variables already set in the shell (e.g. in CI) win over both files: dotenv never overrides them.
+const ENV_FILE = path.resolve(__dirname, '.env');
+if (fs.existsSync(ENV_FILE)) {
+  dotenv.config({ path: ENV_FILE, quiet: true });
+} else {
+  dotenv.config({ path: path.resolve(__dirname, '.env.example'), quiet: true });
+  // The runner and every worker load this config; print the notice once, from the runner only. It goes to
+  // stderr, so stdout stays clean for reporters that write there (e.g. `--reporter=json > results.json`).
+  if (process.env.TEST_WORKER_INDEX === undefined) {
+    console.warn('No .env file found: using the public demo values from .env.example (copy it to .env to override).');
+  }
+}
 
 /**
  * Playwright configuration.
@@ -12,7 +26,8 @@ dotenv.config({ path: path.resolve(__dirname, '.env'), quiet: true });
 export default defineConfig({
   testDir: './tests',
 
-  // Deletes old auth files so every run creates a fresh login (see src/fixtures/auth.fixture.ts).
+  // Deletes old auth files so every run creates a fresh login (see src/fixtures/auth.fixture.ts),
+  // and the previous run's allure-results, so the Allure report shows one run only.
   globalSetup: './src/global-setup.ts',
 
   // Tests are independent, so every test can run in parallel.
@@ -33,6 +48,13 @@ export default defineConfig({
   reporter: [
     ['list'],
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
+    // Raw results for the Allure 3 report. Viewing it is optional (npm run allure:generate / allure:open);
+    // the HTML report above never depends on it. Annotations are mapped to Allure labels by
+    // src/fixtures/allure.fixture.ts, so they are not repeated as "covers: …" steps.
+    ['allure-playwright', { resultsDir: ALLURE_RESULTS_DIR, reportAnnotations: false }],
+    // CI only: each browser job also writes a blob report (blob-report/report-<browser>.zip, named by
+    // PLAYWRIGHT_BLOB_OUTPUT_NAME in the workflow), which the report job merges into one HTML report.
+    ...(process.env.CI ? [['blob'] as ReporterDescription] : []),
   ],
 
   use: {

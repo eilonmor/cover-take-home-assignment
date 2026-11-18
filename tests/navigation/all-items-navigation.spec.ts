@@ -15,6 +15,11 @@ test.describe('Logout & Navigation', () => {
     'TC-NAV-06 All Items returns to inventory from cart, details, and checkout pages',
     { tag: ['@regression'], annotation: { type: 'covers', description: 'AC-NAV-04' } },
     async ({ page, shop, inventoryPage, productDetailsPage, checkoutInfoPage, checkoutOverviewPage }) => {
+      // Five journeys (three of them through checkout) and five menu slide-ins in one test: a full run takes
+      // 20–25 s on Firefox and WebKit, too close to the 30 s default, and a slower site or machine timed it
+      // out. test.slow() triples the budget; each wait inside keeps its own timeout, so a real hang still fails.
+      test.slow();
+
       /** Clicks All Items from the current page and checks the inventory is shown. */
       const allItemsLandsOnInventory = async (): Promise<void> => {
         await inventoryPage.menu.goToAllItems();
