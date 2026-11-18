@@ -74,6 +74,8 @@ It opens `playwright-report/` from the last run. Each test shows its steps, its 
 
 **Allure Report 3** (optional bonus). Nothing extra needs installing: `npm install` already added the `allure-playwright` reporter and the Allure 3 CLI, which is a Node package and needs no Java (it is what sets the Node 22.18 floor above). Every test run writes raw results to `allure-results/`, and each run starts by clearing the previous results.
 
+On a local run the report opens by itself: when the run ends, a small reporter ([`allure-open.reporter.ts`](src/reporters/allure-open.reporter.ts)) generates `allure-report/` and opens it in the default browser at `http://127.0.0.1:5252/`. The report server keeps running in the background, and later runs reuse it, so they only open a new tab. It is skipped on CI, when no test ran (e.g. `--list`), and when the run is interrupted. To turn it off for a run, set `ALLURE_OPEN=false`. To do the same steps by hand:
+
 ```bash
 npm run allure:generate   # allure generate allure-results -o allure-report --clean
 npm run allure:open       # allure open allure-report (serves the report and opens a browser)
@@ -100,6 +102,7 @@ The HTML report never depends on Allure.
 ├── src/
 │   ├── data/                Typed test data: products, sort orders, messages, routes, users, login and checkout cases
 │   ├── fixtures/            Custom fixtures (auth, page objects, Allure labels), custom matchers, the single `test`/`expect` entry point
+│   ├── reporters/           Local-only reporter that generates and opens the Allure report after a run
 │   ├── pages/               Page Object Model
 │   │   ├── components/      Shared parts: Header, BurgerMenu, ItemList
 │   │   ├── flows/           ShopFlow: multi-page journeys (add to cart → checkout → order)
