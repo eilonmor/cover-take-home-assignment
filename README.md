@@ -74,7 +74,18 @@ It opens `playwright-report/` from the last run. Each test shows its steps, its 
 
 **Allure Report 3** (optional bonus). Nothing extra needs installing: `npm install` already added the `allure-playwright` reporter and the Allure 3 CLI, which is a Node package and needs no Java (it is what sets the Node 22.18 floor above). Every test run writes raw results to `allure-results/`, and each run starts by clearing the previous results.
 
-On a local run the report opens by itself: when the run ends, a small reporter ([`allure-open.reporter.ts`](src/reporters/allure-open.reporter.ts)) generates `allure-report/` and opens it in the default browser at `http://127.0.0.1:5252/`. The report server keeps running in the background, and later runs reuse it, so they only open a new tab. It is skipped on CI, when no test ran (e.g. `--list`), and when the run is interrupted. To turn it off for a run, set `ALLURE_OPEN=false`. To do the same steps by hand:
+On a local run the report opens by itself: when the run ends, a small reporter ([`allure-open.reporter.ts`](src/reporters/allure-open.reporter.ts)) generates `allure-report/` and opens it in the default browser at `http://127.0.0.1:5252/`. The report server keeps running in the background, and later runs reuse it, so they only open a new tab. A server on that port that serves another checkout's report is never reused: the run then only generates the report. It is skipped on CI, when no test ran (e.g. `--list`), and when the run is interrupted. To turn it off for a run, set `ALLURE_OPEN=false` (`0`, `no` and `off` work too).
+
+To stop the background server:
+
+```bash
+# Windows (PowerShell)
+Stop-Process -Id (Get-NetTCPConnection -LocalPort 5252 -State Listen).OwningProcess
+# macOS / Linux
+kill $(lsof -t -i :5252)
+```
+
+To do the same steps by hand:
 
 ```bash
 npm run allure:generate   # allure generate allure-results -o allure-report --clean

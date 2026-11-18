@@ -52,8 +52,9 @@ export default defineConfig({
     // to Allure labels by src/fixtures/allure.fixture.ts, so they are not repeated as "covers: …" steps.
     ['allure-playwright', { resultsDir: ALLURE_RESULTS_DIR, reportAnnotations: false }],
     // Local runs only: builds the Allure report and opens it in the browser when the run ends. It must stay
-    // after allure-playwright, which finishes writing the results in its own onEnd. ALLURE_OPEN=false turns it off.
-    ...(!process.env.CI && process.env.ALLURE_OPEN !== 'false'
+    // after allure-playwright, which finishes writing the results in its own onEnd. ALLURE_OPEN=false (or 0, no,
+    // off) turns it off.
+    ...(!process.env.CI && !/^(false|0|no|off)$/i.test(process.env.ALLURE_OPEN ?? '')
       ? [['./src/reporters/allure-open.reporter.ts'] as ReporterDescription]
       : []),
     // CI only: each browser job also writes a blob report (blob-report/report-<browser>.zip, named by
