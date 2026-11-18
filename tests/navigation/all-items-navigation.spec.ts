@@ -15,14 +15,6 @@ test.describe('Logout & Navigation', () => {
     'TC-NAV-06 All Items returns to inventory from cart, details, and checkout pages',
     { tag: ['@regression'], annotation: { type: 'covers', description: 'AC-NAV-04' } },
     async ({ page, shop, inventoryPage, productDetailsPage, checkoutInfoPage, checkoutOverviewPage }) => {
-      /**
-       * Empties the cart left by the previous step, so the shop flow can add the item again. Each step ends on
-       * the inventory (the app origin clearCart needs), and the shop flow's own goto() makes the UI see it.
-       */
-      const freshCart = async (): Promise<void> => {
-        await clearCart(page);
-      };
-
       /** Clicks All Items from the current page and checks the inventory is shown. */
       const allItemsLandsOnInventory = async (): Promise<void> => {
         await inventoryPage.menu.goToAllItems();
@@ -45,21 +37,23 @@ test.describe('Logout & Navigation', () => {
       });
 
       await test.step('From checkout step one', async () => {
-        await freshCart();
+        // Empty the cart left by the previous steps, so the shop flow can add the item again. The step starts on
+        // the inventory (the app origin clearCart needs), and the shop flow's own goto() makes the UI see it.
+        await clearCart(page);
         await shop.startCheckout([ITEM]);
         await expect.soft(checkoutInfoPage.title).toHaveText(PAGE_TITLES.checkoutInfo);
         await allItemsLandsOnInventory();
       });
 
       await test.step('From checkout step two', async () => {
-        await freshCart();
+        await clearCart(page);
         await shop.reachOverview([ITEM]);
         await expect.soft(checkoutOverviewPage.title).toHaveText(PAGE_TITLES.checkoutOverview);
         await allItemsLandsOnInventory();
       });
 
       await test.step('From the checkout complete page', async () => {
-        await freshCart();
+        await clearCart(page);
         await shop.placeOrder([ITEM]);
         await allItemsLandsOnInventory();
       });

@@ -24,7 +24,8 @@ test.describe('Logout & Navigation', () => {
         await menu.open();
         await expect.soft(menu.wrapper).toHaveAttribute('aria-hidden', 'false');
         await expect.soft(menu.items).toHaveText(MENU_ITEMS);
-        for (const item of await menu.items.all()) {
+        // The 5 named links, not a snapshot of `items`, so a missing link fails instead of skipping its checks.
+        for (const item of [menu.allItemsLink, menu.dynamicCatalogLink, menu.aboutLink, menu.logoutLink, menu.resetLink]) {
           await expect.soft(item).toBeVisible();
           // toBeVisible alone also passes on the closed, off-screen panel; the slid-in items are in the viewport.
           await expect.soft(item).toBeInViewport();
