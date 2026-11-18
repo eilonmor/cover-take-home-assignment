@@ -12,8 +12,8 @@ Each phase runs in its own session, on its own branch from an up-to-date `main`,
 | 1. Login tests | `feat/tests-login` | [#3](https://github.com/eilonmor/cover-take-home-assignment/pull/3) | Merged |
 | 2. Products tests | `feat/tests-products` | [#4](https://github.com/eilonmor/cover-take-home-assignment/pull/4) | Merged |
 | 3. Cart tests | `feat/tests-cart` | [#5](https://github.com/eilonmor/cover-take-home-assignment/pull/5) | Merged |
-| 4. Checkout tests | `feat/tests-checkout` | | In review |
-| 5. Navigation tests | `feat/tests-navigation` | | Not started |
+| 4. Checkout tests | `feat/tests-checkout` | [#6](https://github.com/eilonmor/cover-take-home-assignment/pull/6) | Merged |
+| 5. Navigation tests | `feat/tests-navigation` | | In progress |
 | 6. Docs & delivery | `docs/delivery` | | Not started |
 
 Status values: `Not started` → `In progress` → `In review` (PR open) → `Merged`.
