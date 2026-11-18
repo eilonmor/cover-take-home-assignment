@@ -14,7 +14,7 @@ Each phase runs in its own session, on its own branch from an up-to-date `main`,
 | 3. Cart tests | `feat/tests-cart` | [#5](https://github.com/eilonmor/cover-take-home-assignment/pull/5) | Merged |
 | 4. Checkout tests | `feat/tests-checkout` | [#6](https://github.com/eilonmor/cover-take-home-assignment/pull/6) | Merged |
 | 5. Navigation tests | `feat/tests-navigation` | [#7](https://github.com/eilonmor/cover-take-home-assignment/pull/7) | Merged |
-| 6. Docs & delivery | `docs/delivery` | | In progress |
+| 6. Docs & delivery | `docs/delivery` | | In review |
 
 Status values: `Not started` → `In progress` → `In review` (PR open) → `Merged`.
 
@@ -654,11 +654,11 @@ Phase 5 (Logout & Navigation tests) of docs/ROADMAP.md. Windows machine.
 **Branch:** `docs/delivery`. **Target:** `main`. **Depends on:** Phase 5 merged (all 30 tests on `main`).
 
 ### Tasks
-- [ ] **6.1 Three-step run.** The assignment requires the project to run in three steps: `clone → install → test`.
+- [x] **6.1 Three-step run.** The assignment requires the project to run in three steps: `clone → install → test`.
   - If `.env` is missing, `playwright.config.ts` loads `.env.example` and prints a one-line notice. The values are the public demo credentials. `.env` still overrides.
   - `globalSetup` also wipes `allure-results/` (prepared for 6.4).
   → `feat(config): fall back to .env.example when .env is missing`
-- [ ] **6.2 `TEST_PLAN.md` at the repo root.**
+- [x] **6.2 `TEST_PLAN.md` at the repo root.**
   - Overview of the site and the scope.
   - A test-case table built from the 5 Selected suites, 30 rows. Columns: Test ID, description, steps (condensed), expected result, priority, tags, ACs, file.
   - A note on grouped tests, with their case counts: 13, 4, 10 and 12.
@@ -667,7 +667,7 @@ Phase 5 (Logout & Navigation tests) of docs/ROADMAP.md. Windows machine.
   - Risks: the known-defects table from specs/README, site availability, the async redirect and badge, the performance_glitch_user timing, the cart kept in localStorage.
   - Summary: the final run results from 6.6.
   → `docs: add TEST_PLAN.md`
-- [ ] **6.3 `README.md` rewrite.**
+- [x] **6.3 `README.md` rewrite.**
   - Project and site description; prerequisites (Node ≥ 20, npm, Git).
   - Installation: `git clone` → `npm install` (postinstall downloads the browsers; on Linux, `npx playwright install --with-deps`) → optionally `cp .env.example .env`.
   - Running:
@@ -687,13 +687,13 @@ Phase 5 (Logout & Navigation tests) of docs/ROADMAP.md. Windows machine.
     - the Playwright agents (planner, generator, healer) and the seed test.
   - Technologies; CI; the troubleshooting note on the Windows "clear output" hang.
   → `docs: rewrite README with setup, run, report and design notes`
-- [ ] **6.4 Allure 3.**
+- [x] **6.4 Allure 3.**
   - devDependencies `allure-playwright` and `allure` (the Allure 3 CLI, no Java).
   - Reporter `['allure-playwright', { resultsDir: 'allure-results' }]`, next to list and HTML.
   - Scripts `allure:generate` (`allure generate allure-results -o allure-report`) and `allure:open`. Confirm the Allure 3 CLI syntax against its docs.
   - Map the `covers` and `known-issue` annotations to Allure labels or links where supported. Grouped steps show up as Allure steps.
   → `feat(report): integrate Allure 3 reporter`
-- [ ] **6.5 GitHub Actions workflow `.github/workflows/playwright.yml`.**
+- [x] **6.5 GitHub Actions workflow `.github/workflows/playwright.yml`.**
   - Triggers: push to `main` and `pull_request` to `main`.
   - Job `typecheck`: `npm ci --ignore-scripts` → `npm run typecheck`.
   - Job `test`: a matrix of `chromium`, `firefox` and `webkit`, with `fail-fast: false`, Node LTS and npm cache.
@@ -701,7 +701,7 @@ Phase 5 (Logout & Navigation tests) of docs/ROADMAP.md. Windows machine.
     - `actions/upload-artifact` uploads `playwright-report/` and `allure-results/` for each project, with `if: always()` and 14-day retention.
   - The report is a downloadable bonus. Reviewers still run the tests locally.
   → `ci: add GitHub Actions Playwright workflow`
-- [ ] **6.6 Final run.**
+- [x] **6.6 Final run.**
   - Run `npm run typecheck`, `npm test` (3 browsers), `npm run test:smoke`, `npm run test:regression`, then `npm run report` and `npm run allure:generate`.
   - Record the totals per browser (expected: 30 tests × 3 = 90 passed, 0 flaky) and any `known-issue` annotations in TEST_PLAN's Summary.
   - Confirm the CI run on the PR is green.
@@ -715,10 +715,10 @@ Phase 5 (Logout & Navigation tests) of docs/ROADMAP.md. Windows machine.
 - `.gitignore` still covers `node_modules`, `test-results`, `playwright-report`, `.env`, `allure-results` and `allure-report`.
 
 ### Review checklist (phase-specific)
-- [ ] The README covers every item in ASSIGNMENT §05, and every command in it was actually run.
-- [ ] Every Selected TC appears in TEST_PLAN exactly once. The Backlog is listed as out of scope, and the known defects are listed as risks.
-- [ ] No secrets in CI. Only the public demo values from `.env.example` are used.
-- [ ] Allure is optional for a reviewer: the HTML report works without it.
+- [x] The README covers every item in ASSIGNMENT §05, and every command in it was actually run.
+- [x] Every Selected TC appears in TEST_PLAN exactly once. The Backlog is listed as out of scope, and the known defects are listed as risks.
+- [x] No secrets in CI. Only the public demo values from `.env.example` are used.
+- [x] Allure is optional for a reviewer: the HTML report works without it.
 
 ### Execution prompt
 ```text
