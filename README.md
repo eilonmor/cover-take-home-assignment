@@ -2,12 +2,13 @@
 
 End-to-end tests for [Swag Labs](https://www.saucedemo.com), Sauce Labs' public e-commerce demo. It has a login screen, a product catalog, a cart, a checkout flow, and demo accounts with built-in bugs.
 
-The suite has **30 tests**: 6 per area, for Login, Products, Cart, Checkout, and Logout & Navigation. Four of them are data-driven grouped tests, so the suite verifies 65 cases. Every test runs on Chromium, Firefox and WebKit. The tests assert the **intended** behavior written in [`specs/`](specs/README.md), not whatever the site currently does. Known site bugs are reported as annotations and never treated as acceptance criteria.
+The suite has **30 tests**: 6 per area, for Login, Products, Cart, Checkout, and Logout & Navigation. Four of them are data-driven grouped tests, so the suite verifies 65 cases. Every test runs on Chromium, Firefox and WebKit, on a desktop screen only (see [Desktop screens only](#desktop-screens-only)). The tests assert the **intended** behavior written in [`specs/`](specs/README.md), not whatever the site currently does. Known site bugs are reported as annotations and never treated as acceptance criteria.
 
 - **What is tested, and why:** [`TEST_PLAN.md`](TEST_PLAN.md) (test-case table, scope, risks, results).
 - **Behavior specs**, with user stories and acceptance criteria per area: [`specs/`](specs/README.md).
 - **Latest CI reports** for `main`: [Playwright](https://eilonmor.github.io/cover-take-home-assignment/) and [Allure](https://eilonmor.github.io/cover-take-home-assignment/allure/).
 - **How the project was built**, phase by phase: [`docs/ROADMAP.md`](docs/ROADMAP.md).
+- **Architecture, design decisions (pros and cons) and the goal of each test**, in Hebrew: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Prerequisites
 
@@ -108,7 +109,9 @@ The HTML report never depends on Allure.
 .
 ├── .claude/agents/          Playwright Test Agents definitions (planner, generator, healer)
 ├── .github/workflows/       CI workflow (typecheck, tests per browser, merged reports to Pages)
-├── docs/ROADMAP.md          Implementation plan, conventions and per-phase status
+├── docs/
+│   ├── ROADMAP.md           Implementation plan, conventions and per-phase status
+│   └── ARCHITECTURE.md      Architecture, design decisions and test goals (Hebrew)
 ├── specs/                   Behavior specs per area: user stories, ACs, UI contract, defects
 ├── src/
 │   ├── data/                Typed test data: products, sort orders, messages, routes, users, login and checkout cases
@@ -184,6 +187,14 @@ Three custom matchers are defined in [`matchers.ts`](src/fixtures/matchers.ts). 
 - **`covers`:** every test lists the acceptance criteria it verifies, for example `covers: AC-CHK-11, AC-CHK-12, AC-CHK-13`. With the TC ID in the title, this gives the trace TC → AC → user story.
 - **`known-issue`:** a site defect is documented, not asserted. Examples are D1 (Reset App State leaves "Remove" buttons until a reload) and DEF-CHK-SUBTOTAL (an unrounded item total). The annotation is added only while the defect shows, so it disappears once the site is fixed, and the run stays green.
 - **`grouped`:** the case summary of a grouped test.
+
+### Desktop screens only
+
+We decided to test on desktop screens only, not on phone screens. The three projects use Playwright's desktop profiles (`Desktop Chrome`, `Desktop Firefox`, `Desktop Safari`), and there is no mobile or tablet project.
+
+- **Why:** the assignment doesn't ask for mobile, and each area is limited to 6 tests, so the budget goes to functional depth rather than repeating the same flows at another screen size. The site's business logic is the same at every size (same pages, same `data-test` ids, same burger menu), so a phone run would mostly test layout, which is closer to visual testing and also out of scope. Each extra project also adds a full run to the total time.
+- **Trade-off:** bugs that appear only on small screens (layout, hidden or overlapping elements) and touch gestures are not caught.
+- **Adding it later:** the page objects locate elements by `data-test`, not by position, so a mobile run starts with one more project in `playwright.config.ts`, for example `{ name: 'mobile-chrome', use: { ...devices['Pixel 7'] } }`.
 
 ### Playwright Test Agents and the seed test
 
