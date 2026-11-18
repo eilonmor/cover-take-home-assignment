@@ -50,18 +50,19 @@ export class CartPage extends AppPage {
   }
 
   /**
-   * Any editable quantity control (text or number input, slider, select) in the product's row. The
-   * cart has none: quantity is fixed at 1 (AC-CART-06), so tests expect a count of 0. A role query
-   * scoped to the row, because there is no data-test id for an element that must not exist.
-   * Assert the row exists first: a missing row also has 0 inputs.
+   * Any editable quantity control (text or number input, slider, select) in the product's row,
+   * hidden ones included. The cart has none: quantity is fixed at 1 (AC-CART-06), so tests expect a
+   * count of 0. A role query scoped to the row, because there is no data-test id for an element that
+   * must not exist. Assert the row exists first: a missing row also has 0 inputs.
    */
   quantityInputs(key: ProductKey): Locator {
     const row = this.list.row(key);
+    const hidden = { includeHidden: true };
     return row
-      .getByRole('textbox')
-      .or(row.getByRole('spinbutton'))
-      .or(row.getByRole('slider'))
-      .or(row.getByRole('combobox'));
+      .getByRole('textbox', hidden)
+      .or(row.getByRole('spinbutton', hidden))
+      .or(row.getByRole('slider', hidden))
+      .or(row.getByRole('combobox', hidden));
   }
 
   /** Removes each product, in order, waiting for its row to disappear. */
@@ -72,10 +73,12 @@ export class CartPage extends AppPage {
     }
   }
 
-  /** Clicks "Continue Shopping" and waits for the inventory URL. */
+  /** Clicks "Continue Shopping" and waits for the inventory URL and for the cart list to unmount. */
   async continueShopping(): Promise<void> {
     await this.continueShoppingButton.click();
     await expect(this.page).toHaveURL(routePattern(ROUTES.inventory));
+    // The URL changes before the DOM swaps; the inventory page has no cart list.
+    await expect(this.list.root).toHaveCount(0);
   }
 
   /** Clicks "Checkout" and waits for the step one URL. */
